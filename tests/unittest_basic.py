@@ -2,9 +2,10 @@ import unittest
 import sys
 sys.path.append("..")
 import logging
-#uncomment next line for more info about testing
-#logging.basicConfig(level=logging.DEBUG)
 import convert
+import quantity
+import speaker
+import enclosure
 import csv
 
 FILEWITHTESTDATA="./testdata.csv"
@@ -72,6 +73,92 @@ class TestConversion(unittest.TestCase):
                         self.assertEqual(convert.convert(float(inputval[i]), aunit, u),
                                          float(outputval[i]))
 
+class TestQuantity(unittest.TestCase):
+    def setUp(self):
+        self.q=quantity.quantity()
+        logging.debug("object of quantity type created")
+
+    def test_default(self):
+        self.assertEqual(self.q.name, '')
+        self.assertEqual(self.q.value, 0.0 )
+        self.assertEqual(self.q.unit, '')
+        self.assertEqual(self.q.desc, '')
+        logging.debug("default values tested")
+
+    def test_getval(self):
+        self.q.value=1000
+        self.q.unit="l"
+        self.assertEqual(self.q.getval("l"), 1000)
+        self.assertEqual(self.q.getval("m3"), 1.0)
+        logging.debug("getval tested")
+
+    def test_setval(self):
+        self.q.setval(50, "l")
+        self.assertEqual(self.q.value, 50)
+        self.assertEqual(self.q.unit, "l")
+        logging.debug("setval tested")
+
+    def test_convert(self):
+        self.q.value=1000
+        self.q.unit="l"
+        self.q.convert("l")
+        self.assertEqual(self.q.value, 1000)
+        self.assertEqual(self.q.unit, "l")
+        self.q.convert("m3")
+        self.assertEqual(self.q.value, 1)
+        self.assertEqual(self.q.unit, "m3")
+        self.q.setval(500, "l")
+        self.assertEqual(self.q.getval("m3"), 0.5)
+        logging.debug("convert tested")
+
+class TestSpeaker(unittest.TestCase):
+    def setUp(self):
+        self.s=speaker.Speaker()
+        logging.debug("object of speaker type created")
+
+    def test_default(self):
+        self.assertEqual(self.s.r_pow.value, 0.0)
+        self.assertEqual(self.s.max_pow.value, 0.0)
+        self.assertEqual(self.s.z.value, 0.0)
+        self.assertEqual(self.s.Vas.value, 0.0)
+        logging.debug("default values tested")
+
+class TestEnclosures(unittest.TestCase):
+    def setUp(self):
+        self.e=enclosure.SealedEnclosure()
+        logging.debug("object of enclosure type created")
+
+    def test_default(self):
+        #check if all val are present and set to zero
+        names=['Vs', 'we', 'he', 'de', 'thick',
+               'we','he','de','v_int','stuffed']
+        for name in names:
+            obj=getattr(self.e, name)
+            self.assertEqual(getattr(obj, "value"), 0.0,
+                             f"{name} is not zero")
+            logging.debug("default values tested")
+
+    def test_int_dim(self):
+        self.e.thick.setval(1, 'cm')
+        ans=self.e.int_dim(1)
+        self.assertEqual(ans, 0.98)
+        self.e.thick.setval(10, 'cm')
+        ans=self.e.int_dim(1)
+        self.assertEqual(ans, 0.8)
+
+    def test_int_vol(self):
+        self.e.thick.setval(1.6, 'cm')
+        self.e.we.setval(20, 'cm')
+        self.e.he.setval(1.2, 'm')
+        self.e.de.setval(100, 'mm')
+        self.e.int_vol()
+        self.assertAlmostEqual(self.e.v_int.getval('l'), 13.343232)
+
+
+
+
 
 if __name__=='__main__':
+    #uncomment next line for more info about testing
+    #logging.basicConfig(level=logging.DEBUG)
     unittest.main()
