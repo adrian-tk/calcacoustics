@@ -2,13 +2,16 @@ import logging
 import convert
 
 class quantity:
-    def __init__(self, val=0.0, unt="", desc=''):
-        self.name=''
-        self.value=val
-        self.unit=unt
+    def __init__(self, value=0.0, unit="", name='', desc=''):
+        self.name=name
+        self.value=value
+        self.unit=unit
         self.desc=desc
     def getval(self, unit):
         return convert.convert(self.value, self.unit, unit)
+    def setval(self, value, unit):
+        self.value=value
+        self.unit=unit
     def convert(self, unit):
         logging.debug(f"old value {self.value} {self.unit}")
         self.value=convert.convert(self.value, self.unit, unit)
