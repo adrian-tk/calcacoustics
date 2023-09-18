@@ -3,7 +3,7 @@ import sys
 sys.path.append("..")
 import logging
 #uncomment next line for more info about testing
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
 import convert
 import csv
 
