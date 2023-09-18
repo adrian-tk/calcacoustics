@@ -2,6 +2,8 @@ import logging
 
 def convert(value, ufrom, uto):
     """convert value's unit from ufrom to uto"""
+    newval=to_SI(value, ufrom)
+    logging.debug(f"convert {value} {ufrom} to {newval} {uto}")
     return from_SI(to_SI(value, ufrom), uto)
 
 def to_SI(value, ufrom):
