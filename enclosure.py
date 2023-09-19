@@ -2,6 +2,7 @@ import logging
 import quantity as q
 
 class SealedEnclosure:
+
     def __init__(self):
         logging.debug("Object of SealedEnclosure created")
 
@@ -49,17 +50,21 @@ class SealedEnclosure:
                   unit="%",
                   desc="how much material is stuffed into enclosure "
                        "0 is none, 100 is full")
-    def int_dim(self, ext_x):
+    def int_dim(self, ext_x: float) -> float:
+        """calculate internal box linear dimension
+        internal value is external - 2 * thickness"""
         return ext_x-2*self.thick.getval('m')
 
-    def int_vol(self):
+    def int_vol(self) -> float:
+        """calculate internal volume of empty box"""
         self.wi.setval(self.int_dim(self.we.getval("m")), "m")
         self.hi.setval(self.int_dim(self.he.getval("m")), "m")
         self.di.setval(self.int_dim(self.de.getval("m")), "m")
         self.v_int.setval(self.wi.getval("m")*
                           self.hi.getval("m")*
                           self.di.getval("m")*1000, "l")
-        logging.debug(f"V from internal dimension: {self.v_int.getval('l'):.5} l")
+        logging.debug(f"volume from internal dimension: "
+                      f"{self.v_int.getval('l'):.5} l")
         return(self.v_int)
     """
     def stuff(self):
@@ -69,10 +74,12 @@ class SealedEnclosure:
         """
 
 if __name__=="__main__":
+    """only for fast testing"""
     logging.basicConfig(level=logging.DEBUG)
     box=SealedEnclosure()
-    box.we.setval(3, "m")
-    box.he.setval(2, "m")
-    box.de.setval(1, "m")
+    box.we.setval(300, "mm")
+    box.he.setval(1200, "mm")
+    box.de.setval(200, "mm")
+    box.thick.setval(16, "mm")
     box.int_vol()
 
