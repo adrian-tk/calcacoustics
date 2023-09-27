@@ -127,7 +127,7 @@ class TestSpeaker(unittest.TestCase):
 
 class TestEnclosures(unittest.TestCase):
     def setUp(self):
-        self.e=enclosure.SealedEnclosure()
+        self.e=enclosure.Enclosure()
         logging.debug("object of enclosure type created")
 
     def test_default(self):

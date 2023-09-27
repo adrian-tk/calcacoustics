@@ -1,7 +1,7 @@
 import logging
 import quantity as q
 
-class SealedEnclosure:
+class Enclosure:
 
     def __init__(self):
         logging.debug("Object of SealedEnclosure created")
@@ -76,10 +76,10 @@ class SealedEnclosure:
 if __name__=="__main__":
     """only for fast testing"""
     logging.basicConfig(level=logging.DEBUG)
-    box=SealedEnclosure()
+    box=Enclosure()
     box.we.setval(300, "mm")
     box.he.setval(1200, "mm")
-    box.de.setval(200, "mm")
+    box.de.setval(180, "mm")
     box.thick.setval(16, "mm")
     box.int_vol()
 
