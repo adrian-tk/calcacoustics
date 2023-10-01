@@ -119,10 +119,16 @@ class TestSpeaker(unittest.TestCase):
         logging.debug("object of speaker type created")
 
     def test_default(self):
-        self.assertEqual(self.s.r_pow.value, 0.0)
-        self.assertEqual(self.s.max_pow.value, 0.0)
-        self.assertEqual(self.s.z.value, 0.0)
-        self.assertEqual(self.s.Vas.value, 0.0)
+        for x, y in self.s.par.items():
+            with self.subTest(x=x):
+                #check if default is 0
+                self.assertEqual(self.s.par[x].value, 0.0,
+                                 f"default value in {x} is not 0.0")
+                #check if name and desc are not empty
+                self.assertNotEqual(self.s.par[x].name, "",
+                                    f"name in {x} is empty")
+                self.assertNotEqual(self.s.par[x].desc, "",
+                                    f"description in {x} is empty")
         logging.debug("default values tested")
 
 class TestEnclosures(unittest.TestCase):
