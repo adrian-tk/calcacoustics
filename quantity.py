@@ -18,6 +18,17 @@ class quantity:
         self.unit=unit
         logging.debug(f"new value {self.value} {self.unit}")
         return self.value
+    def dictionary(self):
+        dic={
+             "name": self.name,
+             "value": self.value,
+             "unit": self.unit,
+             "desc": self.desc
+             }
+        return dic
+
+
+
     def __str__(self):
         return (f"{self.name} is: {self.value} {self.unit} "
                 f"\n{self.desc}")
@@ -33,3 +44,4 @@ if __name__=="__main__":
     volume.desc="this is volume of some box or something else"
     print(volume)
     volume.convert("m3")
+    print(volume.dictionary())

@@ -4,6 +4,8 @@ import unittest
 import sys
 sys.path.append("..")
 import logging
+#uncomment next line for more info about testing
+#logging.basicConfig(level=logging.DEBUG)
 import convert
 import quantity
 import speaker
@@ -11,6 +13,24 @@ import enclosure
 import csv
 
 FILEWITHTESTDATA="./testdata.csv"
+
+def some_val(a):
+    match str(type(a))[8:-2]:
+        case "str":
+            logging.debug("some_val return string")
+            return "satan"
+        case "float":
+            logging.debug("some_val return float")
+            return 666.0
+        case "float":
+            logging.debug("some_val return int")
+            return 666
+        case other:
+            logging.error("some_val has no such type")
+            return a
+        
+        
+
 
 logging.debug("================start=testing=procedure=============")
 testdata=[]
@@ -112,6 +132,23 @@ class TestQuantity(unittest.TestCase):
         self.q.setval(500, "l")
         self.assertEqual(self.q.getval("m3"), 0.5)
         logging.debug("convert tested")
+    def test_dictionary(self):
+        #put a attributes to test here
+        names=['name', 'value', 'unit', 'desc']
+
+        dic=self.q.dictionary()
+        for name in names:
+            with self.subTest(i=name):
+                #check def value
+                obj=getattr(self.q, name)
+                self.assertEqual(obj, dic[name])
+                #set some val, and check again
+                setattr(self.q, name, some_val(obj))
+                obj=getattr(self.q, name)
+                dic=self.q.dictionary()
+                self.assertEqual(obj, dic[name])
+        logging.debug("dictionary tested")
+
 
 class TestSpeaker(unittest.TestCase):
     def setUp(self):
@@ -141,10 +178,11 @@ class TestEnclosures(unittest.TestCase):
         names=['Vs', 'we', 'he', 'de', 'thick',
                'we','he','de','v_int','stuffed']
         for name in names:
-            obj=getattr(self.e, name)
-            self.assertEqual(getattr(obj, "value"), 0.0,
-                             f"{name} is not zero")
-            logging.debug("default values tested")
+            with self.subTest(i=name):
+                obj=getattr(self.e, name)
+                self.assertEqual(getattr(obj, "value"), 0.0,
+                                 f"{name} is not zero")
+        logging.debug("default values tested")
 
     def test_int_dim(self):
         self.e.thick.setval(1, 'cm')
@@ -167,6 +205,4 @@ class TestEnclosures(unittest.TestCase):
 
 
 if __name__=='__main__':
-    #uncomment next line for more info about testing
-    #logging.basicConfig(level=logging.DEBUG)
     unittest.main()
