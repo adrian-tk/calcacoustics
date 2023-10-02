@@ -1,7 +1,6 @@
 """interface between GUI and solver
-gets json file as input and output"""
+gets python dict as input and output"""
 
-import json
 import logging
 
 #TODO: test script
@@ -13,16 +12,15 @@ class Interface():
         match val:
             case "list_quantities":
                 ans={"power": "dużo", "force": "mało"}
-                logging.debug(f"json send to GUI: {ans}")
-                return(json.dumps(ans))
+                logging.debug(f"calc send to GUI: {ans}")
+                return(ans)
             case _:
                 logging.error(f"there is no {val} value "
                               "for {val} values that GUI sent")
 
     def send(self, data):
-        dec=json.loads(data)
-        logging.debug(f"json get from GUI: {dec}")
-        for key, val in dec.items():
+        logging.debug(f"calc get from GUI: {data}")
+        for key, val in data.items():
             match key:
                 case "speaker":
                     return (self.speaker(val))

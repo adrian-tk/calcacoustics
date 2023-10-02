@@ -3,7 +3,6 @@
 from kivy.app import App
 from kivy.uix.label import Label
 from kivy.uix.accordion import Accordion, AccordionItem
-import json
 import interface
 
 class CalcAcousticsApp(App):
@@ -13,11 +12,9 @@ class CalcAcousticsApp(App):
         inf=interface.Interface()
         #Speaker
         speaker_item=AccordionItem(title="Speaker")
-        ans=inf.send(json.dumps({"speaker": "list_quantities"}))
+        ans=inf.send({"speaker": "list_quantities"})
         print (ans)
-        dec=json.loads(ans)
-        print(dec)
-        for x in dec:
+        for x in ans:
             speaker_item.add_widget(Label(text=x))
         #speaker_item.add_widget(Label(text="Speaker data and calculation"))
         root.add_widget(speaker_item)
