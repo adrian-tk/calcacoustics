@@ -2,33 +2,35 @@ import logging
 from quantity import quantity 
 
 class Speaker:
-    name=""
-    par={
-        'r_pow': quantity(name='rated power',
-                    value=0.0,
-                    unit='W',
-                    desc="A speaker's power rating details "
-                        "the amount of power that it can safely handle."), 
-        'max_pow': quantity(name='maximum power',
-                     value=0.0,
-                     unit='W',
-                     desc="Maximum power is the power that the speaker "
-                       "can handle for short periods of time without "
-                       "being damaged."),
-        'z': quantity(name='nominal impedance',
-                     value=0.0,
-                     unit='Ohm',
-                     desc="nominal impedance is an estimate "
-                         "of the minimum impedance for typical "
-                         "audio ranges usually 4, 8, or 16 Ohms"),
-        'Vas': quantity(name='equivalent volume',
-                     value=0.0,
-                     unit='l',
-                     desc="The Vas measurement in litres "
-                     "is the size of the ‘imaginary’ box "
-                     "which has exactly the same restoring "
-                     "force as the suspension of the driver.")
-        }
+
+    def __init__(self, name="default speaker"):
+        self.name=name
+        self.par={
+            'r_pow': quantity(name='rated power',
+                        value=0.0,
+                        unit='W',
+                        desc="A speaker's power rating details "
+                            "the amount of power that it can safely handle."), 
+            'max_pow': quantity(name='maximum power',
+                         value=0.0,
+                         unit='W',
+                         desc="Maximum power is the power that the speaker "
+                           "can handle for short periods of time without "
+                           "being damaged."),
+            'z': quantity(name='nominal impedance',
+                         value=0.0,
+                         unit='Ohm',
+                         desc="nominal impedance is an estimate "
+                             "of the minimum impedance for typical "
+                             "audio ranges usually 4, 8, or 16 Ohms"),
+            'Vas': quantity(name='equivalent volume',
+                         value=0.0,
+                         unit='l',
+                         desc="The Vas measurement in litres "
+                         "is the size of the ‘imaginary’ box "
+                         "which has exactly the same restoring "
+                         "force as the suspension of the driver.")
+            }
 
     u_fr=6000   # Upper frequency response
     SPL=88      # Mean sound pressure level (1W/1m) in dB
@@ -50,7 +52,7 @@ class Speaker:
     
     
 if __name__=='__main__':
-    visaton=Speaker()
+    visaton=Speaker("Visaton")
     for x, y in visaton.par.items():
         print(x, y)
 

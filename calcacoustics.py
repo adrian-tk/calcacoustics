@@ -6,9 +6,6 @@ from kivy.uix.accordion import Accordion, AccordionItem
 from kivy.uix.boxlayout import BoxLayout
 import interface
 
-class Accor(Accordion):
-    pass
-
 class CalcAcousticsApp(App):
 
     def build(self):
