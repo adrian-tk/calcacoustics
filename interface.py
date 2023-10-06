@@ -23,11 +23,10 @@ class Interface():
     def speaker(self, val):
         match val.split()[0]:
             case "list_quantities":
-                if " " in val:
-                    self.sp.name=val.split()[1]
                 #ans={"power": "dużo", "force": "mało"}
                 ans={}
-                ans["name"]=self.sp.name
+                for key, val in self.sp.par.items():
+                    ans[key]=self.sp.par[key].dictionary()
                 logging.debug(f"calc send to GUI: {ans}")
                 return(ans)
             case "name":
@@ -53,4 +52,4 @@ class Interface():
 if __name__=="__main__":
     inf=Interface()
     #print(inf.send({"speaker": "list_quantities"}))
-    print(inf.send({"speaker": "name dupa"}))
+    print(inf.send({"speaker": "list_quantities"}))
