@@ -29,7 +29,13 @@ class Speaker:
                          desc="The Vas measurement in litres "
                          "is the size of the ‘imaginary’ box "
                          "which has exactly the same restoring "
-                         "force as the suspension of the driver.")
+                         "force as the suspension of the driver."),
+            'u_fr': quantity(
+                name = 'Upper frequency response',
+                value = 0.0,
+                unit = "Hz",
+                desc = 'Upper frequecy of the driver in which'
+                    'it can work'),
             }
 
     u_fr=6000   # Upper frequency response
