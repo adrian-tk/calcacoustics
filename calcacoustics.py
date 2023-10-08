@@ -8,15 +8,34 @@ LOGFILEFORMAT="%(asctime)s - %(levelname)-8s\
 
 import logging
 logging.basicConfig(format=LOGFORMAT, level=logging.DEBUG)
+import re
+
 from kivy.app import App
 from kivy.uix.label import Label
 from kivy.uix.accordion import Accordion, AccordionItem
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
+
 import interface
 
+class FloatInput(TextInput):
+    kname=""
+    pat=re.compile('[^0-9]')
+    def insert_text(self, substring, from_undo=False):
+        pat=self.pat
+        if '.' in self.text:
+            s = re.sub(pat, "", substring)
+        else:
+            s = '.'.join(
+                    re.sub(pat, "", s)
+                    for s in substring.split('.', 1)
+                    )
+        return super().insert_text(s, from_undo=from_undo)
 
 class CalcAcousticsApp(App):
+
+    def num_val_update(self, instance, value):
+        print(f"value: {value}, key: {instance.kname} updated in GUI")
 
     def build(self):
         root=Accordion()
@@ -24,7 +43,12 @@ class CalcAcousticsApp(App):
         #Speaker
         speaker_item=AccordionItem(title="Speaker")
         speaker_layout=BoxLayout(orientation="vertical")
-        ans=inf.send({"speaker": "list_quantities"})
+        ans=inf.send({
+            "section": "speaker",
+            "item": "list_quantities",
+            "action": "get",
+            "value": None,
+            })
         logging.debug(f"answer from calc: {ans}")
         for key, val in ans.items():
             quantity_layout=BoxLayout(orientation="horizontal")
@@ -34,8 +58,11 @@ class CalcAcousticsApp(App):
                         # don't show description
                         pass
                     case "value":
-                        # don't show description
-                        quantity_layout.add_widget(TextInput(multiline=False))
+                        #quant_val=TextInput(multiline=False)
+                        quant_val=FloatInput(multiline=False)
+                        quant_val.kname = key
+                        quant_val.bind(text=self.num_val_update)
+                        quantity_layout.add_widget(quant_val)
                         pass
                     case default:
                         quantity_layout.add_widget(Label(text=str(ival)))
