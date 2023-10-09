@@ -41,6 +41,7 @@ class CalcAcousticsApp(App):
         root=Accordion()
         inf=interface.Interface()
         #Speaker
+        QUANT_HEIGHT=10
         speaker_item=AccordionItem(title="Speaker")
         speaker_layout=BoxLayout(orientation="vertical")
         ans=inf.send({
@@ -49,9 +50,11 @@ class CalcAcousticsApp(App):
             "action": "get",
             "value": None,
             })
-        logging.debug(f"answer from calc: {ans}")
+        #logging.debug(f"answer from calc: {ans}")
         for key, val in ans.items():
-            quantity_layout=BoxLayout(orientation="horizontal")
+            quantity_layout=BoxLayout(orientation="horizontal",
+                                      size = (500, 30),
+                                      size_hint = (1, None))
             for ikey, ival in ans[key].items():
                 match ikey:
                     case "desc":
@@ -59,15 +62,15 @@ class CalcAcousticsApp(App):
                         pass
                     case "value":
                         #quant_val=TextInput(multiline=False)
-                        quant_val=FloatInput(multiline=False)
+                        quant_val=FloatInput(multiline=False, size=(100,30),size_hint=(None, None))
                         quant_val.kname = key
                         quant_val.bind(text=self.num_val_update)
                         quantity_layout.add_widget(quant_val)
-                        pass
                     case default:
                         quantity_layout.add_widget(Label(text=str(ival)))
             #speaker_layout.add_widget(Label(text=key))
             speaker_layout.add_widget(quantity_layout)
+        speaker_layout.add_widget(Label(text="END"))
         #speaker_item.add_widget(Label(text="Speaker data and calculation"))
         speaker_item.add_widget(speaker_layout)
         root.add_widget(speaker_item)

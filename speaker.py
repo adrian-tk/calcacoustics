@@ -35,19 +35,36 @@ class Speaker:
                 value = 0.0,
                 unit = "Hz",
                 desc = 'Upper frequecy of the driver in which'
-                    'it can work'),
+                    'it shall work'),
+            'SPL': quantity(
+                name = 'Sound Pressure Level',
+                value = 0.0,
+                unit = "dB",
+                desc = 'Mean sound pressure level measured'
+                    'at power 1 W and 1m from speaker'),
+            'fs': quantity(
+                name = 'Resonance frequency',
+                value = 0.0,
+                unit = "Hz",
+                desc = 'Mechanical resonance frequency'
+                    'of freely mounted speaker'),
+            'Qts': quantity(
+                name = 'Total Q factor',
+                value = 0.0,
+                unit = "Unitless",
+                desc = 'inverse of damping ratio of speaker'
+                    'lower Q means more control'
+                    'Qts<0.4 is usually for drivers for ported'
+                    'enclosure, 0.4<Qts>0.7 for closed, and Qts>0.7'
+                    'for free-air or infite baffle type'
+                    ),
             }
 
-    u_fr=6000   # Upper frequency response
-    SPL=88      # Mean sound pressure level (1W/1m) in dB
     exc=20      # excursion limit inmm
-    fs=27.0     # Resonanse frequency in Hz
     mi=1.1      # Magnetic induction in Tesla
     mf=600      # Magnetic flux in uWebber
     Qms=3.4     # Mechanical Q factor
     Qes=0.32    # Electricat Q factor
-    Qts=0.29    # Total Q factor
-    Vas=63      # Equivalent volume in l
     EBP=0.0     # Efficiency Bandwidht Product
     # TODO add other
     def calEBP(self):
