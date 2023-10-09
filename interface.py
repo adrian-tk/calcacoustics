@@ -33,6 +33,7 @@ class Interface():
 
     def __init__(self):
         self.sp=speaker.Speaker()
+        self.sp.key_as_short_name()
 
     def speaker(self, data):
         ans={}

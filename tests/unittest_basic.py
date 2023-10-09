@@ -105,6 +105,7 @@ class TestQuantity(unittest.TestCase):
         self.assertEqual(self.q.value, 0.0 )
         self.assertEqual(self.q.unit, '')
         self.assertEqual(self.q.desc, '')
+        self.assertEqual(self.q.short_name, '')
         logging.debug("default values tested")
 
     def test_getval(self):
@@ -134,7 +135,7 @@ class TestQuantity(unittest.TestCase):
         logging.debug("convert tested")
     def test_dictionary(self):
         #put a attributes to test here
-        names=['name', 'value', 'unit', 'desc']
+        names=['name', 'short_name', 'value', 'unit', 'desc']
 
         dic=self.q.dictionary()
         for name in names:
@@ -156,17 +157,27 @@ class TestSpeaker(unittest.TestCase):
         logging.debug("object of speaker type created")
 
     def test_default(self):
-        for x, y in self.s.par.items():
-            with self.subTest(x=x):
+        for key, y in self.s.par.items():
+            with self.subTest(x=key):
                 #check if default is 0
-                self.assertEqual(self.s.par[x].value, 0.0,
-                                 f"default value in {x} is not 0.0")
+                self.assertEqual(self.s.par[key].value, 0.0,
+                                 f"default value in {key} is not 0.0")
                 #check if name and desc are not empty
-                self.assertNotEqual(self.s.par[x].name, "",
-                                    f"name in {x} is empty")
-                self.assertNotEqual(self.s.par[x].desc, "",
-                                    f"description in {x} is empty")
+                self.assertNotEqual(self.s.par[key].name, "",
+                                    f"name in {key} is empty")
+                self.assertEqual(self.s.par[key].short_name, "")
+                self.assertNotEqual(self.s.par[key].desc, "",
+                                    f"description in {key} is empty")
         logging.debug("default values tested")
+
+    def test_key_as_short_name(self):
+        for key, val in self.s.par.items():
+            with self.subTest(x=key):
+                self.assertEqual(self.s.par[key].short_name, "")
+        self.s.key_as_short_name()
+        for key, val in self.s.par.items():
+            with self.subTest(x=key):
+                self.assertEqual(self.s.par[key].short_name, key)
 
 class TestEnclosures(unittest.TestCase):
     def setUp(self):

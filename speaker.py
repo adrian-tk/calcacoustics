@@ -53,12 +53,17 @@ class Speaker:
     def calEBP(self):
         self.EBP=self.fs/self.Qes
         logging.debug(f"calculated EBP is {self.EBP}")
+    def key_as_short_name(self):
+        for key, val in self.par.items():
+            val.short_name=key
 
         
     
     
 if __name__=='__main__':
     visaton=Speaker("Visaton")
-    for x, y in visaton.par.items():
-        print(x, y)
-
+    for key, val in visaton.par.items():
+        print(key, val)
+    visaton.key_as_short_name()
+    print(f"long name: {visaton.par['z'].name}, "
+          f"short name: {visaton.par['z'].short_name}")
