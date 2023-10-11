@@ -35,16 +35,23 @@ class FloatInput(TextInput):
 class CalcAcousticsApp(App):
 
     def num_val_update(self, instance, value):
-        print(f"value: {value}, key: {instance.kname} updated in GUI")
+        logging.debug(f"value: {value}, key: {instance.kname} updated in GUI")
+        ans=self.inf.send({
+            "section": "speaker",
+            "item": instance.kname,
+            "action": "set",
+            "value": value,
+            })
+        self.tmpans.text=value
 
     def build(self):
         root=Accordion()
-        inf=interface.Interface()
+        self.inf=interface.Interface()
         #Speaker
         QUANT_HEIGHT=10
         speaker_item=AccordionItem(title="Speaker")
         speaker_layout=BoxLayout(orientation="vertical")
-        ans=inf.send({
+        ans=self.inf.send({
             "section": "speaker",
             "item": "list_quantities",
             "action": "get",
@@ -61,17 +68,20 @@ class CalcAcousticsApp(App):
                         # don't show description
                         pass
                     case "value":
-                        #quant_val=TextInput(multiline=False)
-                        quant_val=FloatInput(multiline=False, size=(100,30),size_hint=(None, None))
+                        quant_val=FloatInput(
+                                multiline=False,
+                                size=(100,30),
+                                size_hint=(None, None),
+                                text=str(ival),
+                                )
                         quant_val.kname = key
                         quant_val.bind(text=self.num_val_update)
                         quantity_layout.add_widget(quant_val)
                     case default:
                         quantity_layout.add_widget(Label(text=str(ival)))
-            #speaker_layout.add_widget(Label(text=key))
             speaker_layout.add_widget(quantity_layout)
-        speaker_layout.add_widget(Label(text="END"))
-        #speaker_item.add_widget(Label(text="Speaker data and calculation"))
+        self.tmpans = Label(text="END")
+        speaker_layout.add_widget(self.tmpans)
         speaker_item.add_widget(speaker_layout)
         root.add_widget(speaker_item)
         #Enclosure

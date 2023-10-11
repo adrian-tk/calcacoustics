@@ -56,11 +56,17 @@ class Interface():
                     logging.debug(f"calc set name to: {data['value']}")
                     return(data)
                 else:
-                    logging.error(f"wront action")
+                    logging.error(f"wrong action")
                     return("error")
             case _:
-                logging.error(f"there is no {val} value "
-                              "for {val} values that GUI sent")
+                if data["item"] in self.sp.par:
+                    if data["action"] == "set":
+                        data["action"] = "answer"
+                        setattr(self.sp, data["item"], data["value"])
+                        logging.debug(f"calc send to GUI: {data}")
+                else:
+                    logging.error(f"there is no {val} value "
+                                  "for {val} values that GUI sent")
 
     def send(self, data):
         logging.debug(f"calc get from GUI: {data}")
