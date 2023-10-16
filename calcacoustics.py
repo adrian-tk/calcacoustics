@@ -41,7 +41,7 @@ class CalcAcousticsApp(App):
             "action": "calculate",
             "value": "",
             })
-        print((ans['value']))
+        self.speaker_values["EBP"].text=str(ans["value"])
 
     def num_val_update(self, instance, value):
         logging.debug(f"value: {value}, key: {instance.kname} updated in GUI")
@@ -55,20 +55,31 @@ class CalcAcousticsApp(App):
         self.calc_update()
 
     def build(self):
+        """ buld views of GUI
+        accrodion type
+        """
         root=Accordion()
         self.inf=interface.Interface()
-        #Speaker
-        QUANT_HEIGHT=10
+        # Speaker part
+        # speaker data, mostly from poducer
+        # some calculation of ESP etc.
         speaker_item=AccordionItem(title="Speaker")
         speaker_layout=BoxLayout(orientation="vertical")
+        # Ask iterface about list of parameters
         ans=self.inf.send({
             "section": "speaker",
             "item": "list_quantities",
             "action": "get",
             "value": None,
             })
+        # a lot of info below
         #logging.debug(f"answer from calc: {ans}")
+        #
+        # dict for holding a speaker's numeric values 
+        self.speaker_values={}
         for key, val in ans.items():
+            # BoxLayout for quantities
+            # name, short name, value, unit etc.
             quantity_layout=BoxLayout(orientation="horizontal",
                                       size = (500, 30),
                                       size_hint = (1, None))
@@ -76,17 +87,22 @@ class CalcAcousticsApp(App):
                 match ikey:
                     case "desc":
                         # don't show description
+                        # TODO description as a tooltips
                         pass
                     case "value":
-                        quant_val=FloatInput(
+                        self.speaker_values.update(
+                                {key: FloatInput(
                                 multiline=False,
                                 size=(100,30),
                                 size_hint=(None, None),
                                 text=str(ival),
+                                )}
                                 )
-                        quant_val.kname = key
-                        quant_val.bind(text=self.num_val_update)
-                        quantity_layout.add_widget(quant_val)
+                        self.speaker_values[key].kname = key
+                        self.speaker_values[key].bind(
+                                text=self.num_val_update)
+                        quantity_layout.add_widget(
+                                self.speaker_values[key])
                     case default:
                         quantity_layout.add_widget(Label(text=str(ival)))
             speaker_layout.add_widget(quantity_layout)
