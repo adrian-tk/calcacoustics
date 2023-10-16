@@ -58,18 +58,39 @@ class Speaker:
                     'enclosure, 0.4<Qts>0.7 for closed, and Qts>0.7'
                     'for free-air or infite baffle type'
                     ),
+            'Qes': quantity(
+                name = 'Electrical Q factor',
+                value = 0.0,
+                unit = "Unitless",
+                desc = 'is the amount of control coming from'
+                    'the electrical components of a speaker'
+                    '(the voice coil and magnet) which contribute'
+                    'to the suspension system'
+                    ),
+            'EBP': quantity(
+                name = 'Efficiency Bandwidth Product',
+                value = 0.0,
+                unit = "Unitless",
+                desc = 'shows the trade-off between efficiency'
+                    'and bandwidth of a driver.'
+                    'EBP < 50 - use only for a sealed box'
+                    'EBP 50 - 100 - can be used in either'
+                    'EBP > 100 - vented box only'
+                    ),
             }
 
     exc=20      # excursion limit inmm
     mi=1.1      # Magnetic induction in Tesla
     mf=600      # Magnetic flux in uWebber
     Qms=3.4     # Mechanical Q factor
-    Qes=0.32    # Electricat Q factor
-    EBP=0.0     # Efficiency Bandwidht Product
     # TODO add other
     def calEBP(self):
-        self.EBP=self.fs/self.Qes
-        logging.debug(f"calculated EBP is {self.EBP}")
+        if self.par['Qes'].value == 0.0:
+            self.par['EBP'].value = 0.0
+        else:
+            self.par['EBP'].value=self.par['fs'].value/self.par['Qes'].value
+        logging.debug(f"calculated EBP is {self.par['EBP'].value}")
+        return(self.par['EBP'].value)
     def key_as_short_name(self):
         for key, val in self.par.items():
             val.short_name=key
@@ -84,3 +105,6 @@ if __name__=='__main__':
     visaton.key_as_short_name()
     print(f"long name: {visaton.par['z'].name}, "
           f"short name: {visaton.par['z'].short_name}")
+    visaton.par['fs'].value=27.0
+    visaton.par['Qes'].value=0.32
+    print (visaton.calEBP())

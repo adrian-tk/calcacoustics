@@ -10,7 +10,7 @@ example looks like:
 where:
     section: name of function to work with
     item: name of some value
-    action: set, get, answer
+    action: set, get, answer, calculate
     value: used for set or answer
 any additional value possible
 """
@@ -62,11 +62,24 @@ class Interface():
                 if data["item"] in self.sp.par:
                     if data["action"] == "set":
                         data["action"] = "answer"
-                        setattr(self.sp, data["item"], data["value"])
+                        #setattr(self.sp, data["item"], data["value"])
+                        if data['value']=="": data['value']=0
+                        self.sp.par[data["item"]].value = float(data["value"])
+                        print(self.sp.par[data["item"]].value)
                         logging.debug(f"calc send to GUI: {data}")
+                    elif data["action"] == "calculate":
+                        data["action"] = "answer"
+                        if data["item"] == "EBP":
+                            ans=self.sp.calEBP()
+                            logging.debug(f"calculate EBP")
+                            data["value"] = ans
+                            logging.debug(f"calc send to GUI: {data}")
+                            return(data)
+
                 else:
                     logging.error(f"there is no {val} value "
                                   "for {val} values that GUI sent")
+
 
     def send(self, data):
         logging.debug(f"calc get from GUI: {data}")

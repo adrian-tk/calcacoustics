@@ -34,6 +34,15 @@ class FloatInput(TextInput):
 
 class CalcAcousticsApp(App):
 
+    def calc_update(self):
+        ans=self.inf.send({
+            "section": "speaker",
+            "item": 'EBP',
+            "action": "calculate",
+            "value": "",
+            })
+        print((ans['value']))
+
     def num_val_update(self, instance, value):
         logging.debug(f"value: {value}, key: {instance.kname} updated in GUI")
         ans=self.inf.send({
@@ -43,6 +52,7 @@ class CalcAcousticsApp(App):
             "value": value,
             })
         self.tmpans.text=value
+        self.calc_update()
 
     def build(self):
         root=Accordion()
