@@ -8,7 +8,6 @@ LOGFILEFORMAT="%(asctime)s - %(levelname)-8s\
 
 import logging
 logging.basicConfig(format=LOGFORMAT, level=logging.DEBUG)
-import re
 
 from kivy.app import App
 from kivy.uix.label import Label
@@ -18,20 +17,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 
 import interface
-
-class FloatInput(TextInput):
-    kname=""
-    pat=re.compile('[^0-9]')
-    def insert_text(self, substring, from_undo=False):
-        pat=self.pat
-        if '.' in self.text:
-            s = re.sub(pat, "", substring)
-        else:
-            s = '.'.join(
-                    re.sub(pat, "", s)
-                    for s in substring.split('.', 1)
-                    )
-        return super().insert_text(s, from_undo=from_undo)
+from kivy_common import FloatInput
 
 class CalcAcousticsApp(App):
 
