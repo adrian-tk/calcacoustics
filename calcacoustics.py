@@ -9,10 +9,8 @@ LOGFILEFORMAT="%(asctime)s - %(levelname)-8s\
 import logging
 logging.basicConfig(format=LOGFORMAT, level=logging.DEBUG)
 
-# logging from kivy
 import os
-os.environ["KCFG_KIVY_LOG_LEVEL"] = "warning"
-
+os.environ["KCFG_KIVY_LOG_LEVEL"] = "critical"
 
 from kivy.app import App
 from kivy.uix.label import Label
