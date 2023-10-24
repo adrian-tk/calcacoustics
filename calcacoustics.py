@@ -9,6 +9,11 @@ LOGFILEFORMAT="%(asctime)s - %(levelname)-8s\
 import logging
 logging.basicConfig(format=LOGFORMAT, level=logging.DEBUG)
 
+# logging from kivy
+import os
+os.environ["KCFG_KIVY_LOG_LEVEL"] = "warning"
+
+
 from kivy.app import App
 from kivy.uix.label import Label
 from kivy.uix.accordion import Accordion, AccordionItem
@@ -18,6 +23,9 @@ from kivy.uix.button import Button
 
 import interface
 from kivy_common import FloatInput
+
+loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
+print(loggers)
 
 class CalcAcousticsApp(App):
 
@@ -42,17 +50,30 @@ class CalcAcousticsApp(App):
         self.calc_update()
 
     def open_description(self, event):
-        #TODO
         for key, val in self.speaker_qts.items():
-            if val == event:
-                #print(self.speaker_desclab[key])
-                #self.speaker_desclab[key].size_hint=(None, 0.5)
-                self.speaker_qts[key]['desc_label'].size=(0, 0)
+            if val['desc_btn'] == event:
+                #print (self.speaker_qts[key])
+                logging.debug(f"key: {key} pressed")
+                a=self.speaker_qts[key]
+                if a['desc_label'].disabled:
+                    a['bottom_layout'].size[1] = 70
+                    a['all_layout'].size[1] = 100
+                    a['desc_label'].opacity=1
+                    a['desc_label'].disabled=False
+                    a['desc_label'].size = a['bottom_layout'].size
+                    a['desc_label'].text_size = a['desc_label'].size
+                    print(a['desc_label'].text_size)
+                else:
+                    a['bottom_layout'].size=(500,0 )
+                    a['all_layout'].size=(500, 30)
+                    a['desc_label'].opacity=0
+                    a['desc_label'].disabled=True
 
     def build(self):
         """ buld views of GUI
         accrodion type
         """
+        HEIGHT=30
         root=Accordion()
         self.inf=interface.Interface()
         # Speaker part
@@ -86,14 +107,18 @@ class CalcAcousticsApp(App):
             # bottom to hide with help, and block
             all_layout = BoxLayout(
                     orientation='vertical',
-                    size=(500, 30),
+                    size=(500, HEIGHT),
                     size_hint = (1, None )
                     )
             top_layout = BoxLayout(
                     orientation="horizontal",
+                    size=(500, all_layout.height),
+                    size_hint = (1, None )
                     )
             bottom_layout = BoxLayout(
                     orientation="horizontal",
+                    size=(500, 0),
+                    size_hint = (1, None )
                     )
             qty_widgets.update({
                     'all_layout': all_layout,
@@ -114,8 +139,14 @@ class CalcAcousticsApp(App):
                              )
                         desc_btn.bind(on_press=self.open_description)
                         top_layout.add_widget(desc_btn)
-                        desc_label = Label(text=str(ival))
+                        desc_label = Label(
+                                text=str(ival),
+                                valign = 'top',
+                                padding = [5, 5, 5, 5]
+                                )
                         bottom_layout.add_widget(desc_label)
+                        desc_label.disabled=True
+                        desc_label.opacity=0
 
                         qty_widgets.update({
                             'desc_btn': desc_btn,
@@ -145,9 +176,8 @@ class CalcAcousticsApp(App):
 
 
             self.speaker_qts.update({key: qty_widgets})
-            # iterate for one quantity do show all widget
             all_layout.add_widget(top_layout)
-            #big_quant_layout.add_widget(bottom_quant_layout)
+            all_layout.add_widget(bottom_layout)
             speaker_layout.add_widget(all_layout)
         self.tmpans = Label(text="END")
         speaker_layout.add_widget(self.tmpans)
