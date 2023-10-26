@@ -1,4 +1,6 @@
 import logging
+logger = logging.getLogger(__name__)
+
 import convert
 
 class quantity:
@@ -19,10 +21,10 @@ class quantity:
         self.value=value
         self.unit=unit
     def convert(self, unit):
-        logging.debug(f"old value {self.value} {self.unit}")
+        logger.debug(f"old value {self.value} {self.unit}")
         self.value=convert.convert(self.value, self.unit, unit)
         self.unit=unit
-        logging.debug(f"new value {self.value} {self.unit}")
+        logger.debug(f"new value {self.value} {self.unit}")
         return self.value
     def dictionary(self):
         dic={
@@ -44,7 +46,7 @@ class quantity:
 
     
 if __name__=="__main__":
-    logging.basicConfig(level=logging.DEBUG)
+    logger.setLevel(logging.DEBUG)
     volume=quantity()
     volume.name="enclosure"
     volume.value=10

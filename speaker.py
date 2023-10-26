@@ -1,4 +1,6 @@
 import logging
+logger = logging.getLogger(f"calac.{__name__}")
+
 from quantity import quantity 
 
 class Speaker:
@@ -89,7 +91,7 @@ class Speaker:
             self.par['EBP'].value = 0.0
         else:
             self.par['EBP'].value=self.par['fs'].value/self.par['Qes'].value
-        logging.debug(f"calculated EBP is {self.par['EBP'].value}")
+        logger.debug(f"calculated EBP is {self.par['EBP'].value}")
         return(self.par['EBP'].value)
     def key_as_short_name(self):
         for key, val in self.par.items():

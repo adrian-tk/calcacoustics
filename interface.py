@@ -22,9 +22,10 @@ LOGFILEFORMAT="%(asctime)s - %(levelname)-8s\
         [%(funcName)s] %(message)s"
 
 import logging
-logging.basicConfig(format=LOGFORMAT, level=logging.DEBUG)
+#logging.basicConfig(format=LOGFORMAT, level=logging.DEBUG)
+logcom = logging.getLogger(f"calac.com.{__name__}")
+logger = logging.getLogger(f"calac.{__name__}")
 
-import logging
 import speaker
 #TODO: test script
 
@@ -41,22 +42,22 @@ class Interface():
             case "list_quantities":
                 for key, val in self.sp.par.items():
                     ans[key]=self.sp.par[key].dictionary()
-                logging.debug(f"calc send to GUI: {ans}")
+                logcom.debug(f"calc send to GUI: {ans}")
                 return(ans)
             case "name":
                 if data["action"] == "get":
                     data["action"] = "answer"
                     data["value"] = self.sp.name
-                    logging.debug(f"calc send to GUI: {data}")
+                    logcom.debug(f"calc send to GUI: {data}")
                     return(data)
                 elif data["action"] == "set":
                     data["action"] = "answer"
                     self.sp.name = data["value"]
-                    logging.debug(f"calc send to GUI: {data}")
-                    logging.debug(f"calc set name to: {data['value']}")
+                    logcom.debug(f"calc send to GUI: {data}")
+                    logcom.debug(f"calc set name to: {data['value']}")
                     return(data)
                 else:
-                    logging.error(f"wrong action")
+                    logger.error(f"wrong action")
                     return("error")
             case _:
                 if data["item"] in self.sp.par:
@@ -65,29 +66,29 @@ class Interface():
                         #setattr(self.sp, data["item"], data["value"])
                         if data['value']=="": data['value']=0
                         self.sp.par[data["item"]].value = float(data["value"])
-                        print(self.sp.par[data["item"]].value)
-                        logging.debug(f"calc send to GUI: {data}")
+                       # print(self.sp.par[data["item"]].value)
+                        logcom.debug(f"calc send to GUI: {data}")
                     elif data["action"] == "calculate":
                         data["action"] = "answer"
                         if data["item"] == "EBP":
                             ans=self.sp.calEBP()
-                            logging.debug(f"calculate EBP")
+                            logger.debug(f"calculate EBP")
                             data["value"] = ans
-                            logging.debug(f"calc send to GUI: {data}")
+                            logcom.debug(f"calc send to GUI: {data}")
                             return(data)
 
                 else:
-                    logging.error(f"there is no {val} value "
+                    logger.error(f"there is no {val} value "
                                   "for {val} values that GUI sent")
 
 
     def send(self, data):
-        logging.debug(f"calc get from GUI: {data}")
+        logcom.debug(f"calc get from GUI: {data}")
         match data["section"]:
             case "speaker":
                 return (self.speaker(data))
             case _:
-                logging.error(f"there is no {val} for section GUI sent")
+                logger.error(f"there is no {val} for section GUI sent")
 
 if __name__=="__main__":
     inf=Interface()

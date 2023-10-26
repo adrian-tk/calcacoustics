@@ -1,9 +1,10 @@
 import logging
+logger = logging.getLogger(__name__)
 
 def convert(value, ufrom, uto):
     """convert value's unit from ufrom to uto"""
     newval=from_SI(to_SI(value, ufrom), uto)
-    logging.debug(f"convert {value} {ufrom} to {newval} {uto}")
+    logger.debug(f"convert {value} {ufrom} to {newval} {uto}")
     return newval
 
 def to_SI(value, ufrom):
@@ -22,7 +23,7 @@ def to_SI(value, ufrom):
         case "mm":
             return (value/1000.0)
         case _:
-            logging.error(f"unknow unit {ufrom}, can't convert")
+            logger.error(f"unknow unit {ufrom}, can't convert")
             return value
 
 def from_SI(value, uto):
@@ -41,4 +42,4 @@ def from_SI(value, uto):
         case "mm":
             return (value*1000.0)
         case _:
-            logging.error(f"unknow unit {uto}, can't convert")
+            logger.error(f"unknow unit {uto}, can't convert")

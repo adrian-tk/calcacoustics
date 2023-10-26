@@ -1,16 +1,28 @@
 #! env/bin/python
 
+# format for logging
 LOGFORMAT="%(levelname)-8s[%(name)s]\
      [%(filename)s][%(funcName)s] %(message)s"
 LOGFILEFORMAT="%(asctime)s - %(levelname)-8s\
-         [%(name)s][%(filename)s:%(lineno)d]\
-         [%(funcName)s] %(message)s"
+        [%(name)s][%(filename)s:%(lineno)d]\
+        [%(funcName)s] %(message)s"
 
 import logging
-logging.basicConfig(format=LOGFORMAT, level=logging.DEBUG)
-
-import os
-os.environ["KCFG_KIVY_LOG_LEVEL"] = "critical"
+#logging.basicConfig(level=logging.DEBUG, format=LOGFORMAT)
+logging.basicConfig(level=logging.DEBUG)
+# .env file for ugly way to change kivy log level
+# for all project
+from dotenv import load_dotenv
+load_dotenv()
+from kivy.logger import Logger, LOG_LEVELS
+Logger.setLevel(LOG_LEVELS["warning"])
+# main logger
+logger = logging.getLogger('calac')
+logger.setLevel(logging.DEBUG)
+# log for communication, a lot of data
+logcom = logging.getLogger('calac.com')
+logcom.setLevel(logging.ERROR)
+# print available loggers
 
 from kivy.app import App
 from kivy.uix.label import Label
@@ -22,8 +34,10 @@ from kivy.uix.button import Button
 import interface
 from kivy_common import FloatInput
 
-loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
-print(loggers)
+loggers = [logging.getLogger(name) for name in \
+        logging.root.manager.loggerDict]
+for logg in loggers:
+    logger.debug(logg)
 
 class CalcAcousticsApp(App):
 
@@ -37,7 +51,7 @@ class CalcAcousticsApp(App):
         self.speaker_qts["EBP"]["value"].text=str(ans["value"])
 
     def num_val_update(self, instance, value):
-        logging.debug(f"value: {value}, key: {instance.kname} updated in GUI")
+        logger.debug(f"value: {value}, key: {instance.kname} updated in GUI")
         ans=self.inf.send({
             "section": "speaker",
             "item": instance.kname,
@@ -51,7 +65,7 @@ class CalcAcousticsApp(App):
         for key, val in self.speaker_qts.items():
             if val['desc_btn'] == event:
                 #print (self.speaker_qts[key])
-                logging.debug(f"key: {key} pressed")
+                logger.debug(f"key: {key} pressed")
                 a=self.speaker_qts[key]
                 if a['desc_label'].disabled:
                     a['bottom_layout'].size[1] = 70
@@ -60,7 +74,7 @@ class CalcAcousticsApp(App):
                     a['desc_label'].disabled=False
                     a['desc_label'].size = a['bottom_layout'].size
                     a['desc_label'].text_size = a['desc_label'].size
-                    print(a['desc_label'].text_size)
+                    #print(a['desc_label'].text_size)
                 else:
                     a['bottom_layout'].size=(500,0 )
                     a['all_layout'].size=(500, 30)
@@ -90,7 +104,7 @@ class CalcAcousticsApp(App):
             "value": None,
             })
         # a lot of info below
-        #logging.debug(f"answer from calc: {ans}")
+        #logger.debug(f"answer from calc: {ans}")
 
         # dictionary of dictionaries to hold
         # data from widget created in loop
