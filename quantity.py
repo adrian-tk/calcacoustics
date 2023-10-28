@@ -26,7 +26,13 @@ class quantity:
         self.unit=unit
         logger.debug(f"new value {self.value} {self.unit}")
         return self.value
-    def dictionary(self):
+    def dictionary(self, to_rem=()):
+        """change values do dictionary
+
+        as parameter tuple of values do remove from dic
+        return dictionary
+        """
+
         dic={
              "name": self.name,
              "short_name": self.short_name,
@@ -34,6 +40,8 @@ class quantity:
              "unit": self.unit,
              "desc": self.desc,
              }
+        for key in to_rem:
+            del dic[key]
         return dic
 
 
@@ -56,3 +64,4 @@ if __name__=="__main__":
     print(volume)
     volume.convert("m3")
     print(volume.dictionary())
+    print(volume.dictionary(('desc',)))
