@@ -1,10 +1,23 @@
-import logging
+# import logging
+# import logging stuff at first
+try:
+    from logger import logging
+    from logger import logger
+    from logger import logcom
+    # set this logger as a child of main logger
+    logger = logger.getChild(__name__)
+    logger.debug("imported loggers")
+except Exception as err:
+    print("Can't import loggers")
+    print(err)
+    print("Maybe You shall be in env?")
+
 import quantity as q
 
 class Enclosure:
 
     def __init__(self):
-        logging.debug("Object of SealedEnclosure created")
+       logger.debug("Object of SealedEnclosure created")
 
     Vs=q.quantity(name='internal volume of enclosure',
                  value=0.0,
@@ -63,7 +76,7 @@ class Enclosure:
         self.v_int.setval(self.wi.getval("m")*
                           self.hi.getval("m")*
                           self.di.getval("m")*1000, "l")
-        logging.debug(f"volume from internal dimension: "
+        logger.debug(f"volume from internal dimension: "
                       f"{self.v_int.getval('l'):.5} l")
         return(self.v_int)
     """
@@ -75,7 +88,6 @@ class Enclosure:
 
 if __name__=="__main__":
     """only for fast testing"""
-    logging.basicConfig(level=logging.DEBUG)
     box=Enclosure()
     box.we.setval(300, "mm")
     box.he.setval(1200, "mm")

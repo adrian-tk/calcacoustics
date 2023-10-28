@@ -1,9 +1,15 @@
-LOGFORMAT="%(levelname)-8s[%(name)s][%(filename)s][%(funcName)s] %(message)s"
-LOGFILEFORMAT="%(asctime)s - %(levelname)-8s[%(name)s][%(filename)s:%(lineno)d][%(funcName)s] %(message)s"
+try:
+    from logger import logging
+    from logger import logger
+    from logger import logcom
+    # set this logger as a child of main logger
+    logger = logger.getChild(__name__)
+    logger.debug("imported loggers")
+except Exception as err:
+    print("Can't import loggers")
+    print(err)
+    print("Maybe You shall be in env?")
 
-import logging
-logging.basicConfig(format=LOGFORMAT, level=logging.DEBUG)
-#logging.basicConfig(format=LOGFORMAT, level=logging.INFO)
 import enclosure 
 import speaker
 

@@ -1,28 +1,15 @@
 #! env/bin/python
 
-# format for logging
-LOGFORMAT="%(levelname)-8s[%(name)s]\
-     [%(filename)s][%(funcName)s] %(message)s"
-LOGFILEFORMAT="%(asctime)s - %(levelname)-8s\
-        [%(name)s][%(filename)s:%(lineno)d]\
-        [%(funcName)s] %(message)s"
-
-import logging
-#logging.basicConfig(level=logging.DEBUG, format=LOGFORMAT)
-logging.basicConfig(level=logging.DEBUG)
-# .env file for ugly way to change kivy log level
-# for all project
-from dotenv import load_dotenv
-load_dotenv()
-from kivy.logger import Logger, LOG_LEVELS
-Logger.setLevel(LOG_LEVELS["warning"])
-# main logger
-logger = logging.getLogger('calac')
-logger.setLevel(logging.DEBUG)
-# log for communication, a lot of data
-logcom = logging.getLogger('calac.com')
-logcom.setLevel(logging.ERROR)
-# print available loggers
+# import logging stuff at first
+try:
+    from logger import logging
+    from logger import logger
+    from logger import logcom
+    logger.debug("imported loggers")
+except Exception as err:
+    print("Can't import loggers")
+    print(err)
+    print("maybe You shold be in env?")
 
 from kivy.app import App
 from kivy.uix.label import Label
@@ -34,6 +21,7 @@ from kivy.uix.button import Button
 import interface
 from kivy_common import FloatInput
 
+# print available loggers
 loggers = [logging.getLogger(name) for name in \
         logging.root.manager.loggerDict]
 for logg in loggers:

@@ -1,5 +1,14 @@
-import logging
-logger = logging.getLogger(f"calac.{__name__}")
+try:
+    from logger import logging
+    from logger import logger
+    from logger import logcom
+    # set this logger as a child of main logger
+    logger = logger.getChild(__name__)
+    logger.debug("imported loggers")
+except Exception as err:
+    print("Can't import loggers")
+    print(err)
+    print("Maybe You shall be in env?")
 
 from quantity import quantity 
 
