@@ -49,6 +49,34 @@ class Interface():
         self.sp=speaker.Speaker()
         self.sp.key_as_short_name()
 
+    def simple_attr(self, data, case):
+        """get data as dictrionary and create answer as dictionary
+        for attributes in speaker data
+        """
+        if data["action"] == "get":
+            data["action"] = "answer"
+            try:
+                data["value"] = getattr(self.sp, case)
+            except Exception as err:
+                logger.error("cant find atribute {case}")
+                logger.error(err)
+            #data["value"] = self.sp.name
+            logcom.debug(f"calc send to GUI: {data}")
+            return(data)
+        elif data["action"] == "set":
+            data["action"] = "answer"
+            try:
+                setattr(self.sp, case, data['value'])
+            except Exception as err:
+                logger.error("cant find atribute {case}")
+                logger.error(err)
+            #self.sp.name = data["value"]
+            logcom.debug(f"calc send to GUI: {data}")
+            return(data)
+        else:
+            logger.error(f"wrong action")
+            return("error")
+
     def speaker(self, data):
         ans={}
         match data["item"]:
@@ -58,6 +86,12 @@ class Interface():
                 logcom.debug(f"calc send to GUI: {ans}")
                 return(ans)
             case "name":
+                return (self.simple_attr(data, data["item"]))
+            case "producer":
+                return (self.simple_attr(data, data["item"]))
+            case "model":
+                return (self.simple_attr(data, data["item"]))
+                """
                 if data["action"] == "get":
                     data["action"] = "answer"
                     data["value"] = self.sp.name
@@ -72,6 +106,7 @@ class Interface():
                 else:
                     logger.error(f"wrong action")
                     return("error")
+                    """
             case _:
                 if data["item"] in self.sp.par:
                     if data["action"] == "set":

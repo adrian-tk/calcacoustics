@@ -16,10 +16,10 @@ from kivy.uix.label import Label
 from kivy.uix.accordion import Accordion, AccordionItem
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
-from kivy.uix.button import Button
 
 import interface
 from kivy_common import FloatInput
+from kivy_common import DescButton
 
 # print available loggers
 loggers = [logging.getLogger(name) for name in \
@@ -69,6 +69,18 @@ class CalcAcousticsApp(App):
                     a['desc_label'].opacity=0
                     a['desc_label'].disabled=True
 
+    def read_speaker_data():
+        # send request for data
+        ans=self.inf.send({
+            "section": "speaker",
+            "item": "list_quantities",
+            "action": "get",
+            "value": None,
+            })
+         
+        for key, val in ans.items():
+            logger.debug(key, val)
+
     def build(self):
         """ buld views of GUI
         accrodion type
@@ -84,16 +96,55 @@ class CalcAcousticsApp(App):
         speaker_item=AccordionItem(title="Speaker")
         speaker_layout=BoxLayout(orientation="vertical")
         # Ask iterface about list of parameters
-        # return a dictionary of dictionaries
+        ans=self.inf.send({
+            "section": "speaker",
+            "item": "producer",
+            "action": "get",
+            "value": None,
+            })
+        logcom.debug(f"answer from calc: {ans}")
+        producer = ans['value']
+
+        ans=self.inf.send({
+            "section": "speaker",
+            "item": "model",
+            "action": "get",
+            "value": None,
+            })
+        logcom.debug(f"answer from calc: {ans}")
+        model = ans['value']
+
+
+        name_all = BoxLayout(
+                    orientation='vertical',
+                    size=(500, HEIGHT),
+                    size_hint = (1, None )
+                    )
+        name_top = BoxLayout(
+                    orientation="horizontal",
+                    size=(500, name_all.height),
+                    size_hint = (1, None )
+                    )
+        name_bottom = BoxLayout(
+                    orientation="horizontal",
+                    size=(500, 0),
+                    size_hint = (1, None )
+                    )
+
+        #speaker_producer = Label(text=str(self.producer))
+        speaker_producer = Label(text=str(f"speaker producer: {producer}"))
+        speaker_model = Label(text=str(f"speaker model: {model}"))
+        name_top.add_widget(speaker_producer)
+        name_top.add_widget(speaker_model)
+        name_all.add_widget(name_top)
+        speaker_layout.add_widget(name_all)
+        # ask about all quantities for speaker
         ans=self.inf.send({
             "section": "speaker",
             "item": "list_quantities",
             "action": "get",
             "value": None,
             })
-        # a lot of info below
-        #logger.debug(f"answer from calc: {ans}")
-
         # dictionary of dictionaries to hold
         # data from widget created in loop
         # ie: {Qts: {unit: <some object>}}
@@ -129,14 +180,7 @@ class CalcAcousticsApp(App):
             for ikey, ival in ans[key].items():
                 match ikey:
                     case "desc":
-                        desc_btn=Button(
-                             text='V',
-                             size=(
-                                all_layout.height,
-                                all_layout.height,
-                                ),
-                             size_hint=(None, None),
-                             )
+                        desc_btn = DescButton(btnsize = all_layout.height)
                         desc_btn.bind(on_press=self.open_description)
                         top_layout.add_widget(desc_btn)
                         desc_label = Label(

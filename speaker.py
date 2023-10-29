@@ -162,18 +162,41 @@ class Speaker:
         with open(filename, 'w') as file:
             save_speaker.write(file)
 
-    def read_from_file(file):
+    def read_from_file(self, file=""):
         """read speakers data from file
         """
         # TODO test cases
+        FILETOREAD = 'speakers/Visaton_W200SC8OHM.ini'
+        rspeak = configparser.ConfigParser()
+        rspeak.read(FILETOREAD)
+        logger.debug(f"readed file: {FILETOREAD}")
+        logger.debug(f"sections in file: {rspeak.sections()}")
+        for section in rspeak.sections():
+            if section == "general":
+                self.producer = rspeak[section]['producer']
+                self.model = rspeak[section]['model']
+                self.description = rspeak[section]['description']
+            else:
+                if section in self.par:
+                    self.par[section].value=rspeak[section]['value']
+                    self.par[section].unit=rspeak[section]['unit']
+                    logger.debug(f"section {section} readed from file")
+                else:
+                    logger.warning(
+                            f"unknown section: {section} in {FILETOREAD}"
+                            )
+        logger.debug("end of reading speaker config file")
 
     
 if __name__=='__main__':
     logger.setLevel=(logging.DEBUG)
     spkr = Speaker()
-    spkr.par['fs'].value=27.0
-    spkr.par['Qes'].value=0.32
-    spkr.save_to_file()
+    spkr.read_from_file()
+    print(f"speaker producer from file: {spkr.producer}")
+    print(f"speaker rated power from file: {spkr.par['r_pow'].value}")
+   # spkr.par['fs'].value=27.0
+   # spkr.par['Qes'].value=0.32
+   # spkr.save_to_file()
    # visaton=Speaker("Visaton")
    # for key, val in visaton.par.items():
    #     print(key, val)
