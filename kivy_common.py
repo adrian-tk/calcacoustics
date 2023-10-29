@@ -1,4 +1,6 @@
 from kivy.uix.textinput import TextInput
+from kivy.uix.button import Button
+
 import re
 
 class FloatInput(TextInput):
@@ -14,3 +16,10 @@ class FloatInput(TextInput):
                     for s in substring.split('.', 1)
                     )
         return super().insert_text(s, from_undo=from_undo)
+
+class DescButton(Button):
+    def __init__(self, btnsize=30, **kwargs):
+        super().__init__(**kwargs)
+        self.text = 'V'
+        self.size_hint = (None, None)
+        self.size = (btnsize, btnsize)
