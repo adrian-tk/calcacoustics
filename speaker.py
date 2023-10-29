@@ -10,12 +10,21 @@ except Exception as err:
     print(err)
     print("Maybe You shall be in env?")
 
+import os
+import configparser
 from quantity import quantity 
 
 class Speaker:
 
-    def __init__(self, name="default speaker"):
-        self.name=name
+    def __init__(self,
+                 producer="ACME",
+                 model="over9000",
+                 description="some usual speaker",
+                 ):
+        self.producer = producer
+        self.model = model
+        self.description = description
+        self.name=self.producer + '_' + self.model
         self.par={
             'r_pow': quantity(name='rated power',
                         value=0.0,
@@ -106,16 +115,71 @@ class Speaker:
         for key, val in self.par.items():
             val.short_name=key
 
-        
-    
+    def save_to_file(self, filename=""):
+        """save speakers data to .ini file
+        """
+
+        # TODO test cases
+
+        PATH = 'speakers/'
+
+        # create filename
+        if filename == "":
+            filename = self.name + ".ini"
+        if filename[-4:] != ".ini":
+            filename = filename + ".ini"
+
+        # create path
+        if not os.path.isdir(PATH):
+            os.mkdir(PATH)
+            logger.debug(f"directory {PATH} created")
+        else:
+            logger.debug(f"using existed {PATH} directory")
+        filename = PATH + filename
+
+        # create new filename when actual existed already
+        i=1
+        while os.path.isfile(filename):
+            if i == 1:
+                filename = filename[:-4] + '_' + str(i) + '.ini'
+            else:
+                filename = filename[:filename.rfind('_')+1] \
+                        + str(i) + '.ini'
+            i+=1
+
+        logger.debug(f"filename to save speaker: {filename}")
+        save_speaker = configparser.ConfigParser()
+        save_speaker['general'] = {
+                'producer': self.producer,
+                'model': self.model,
+                'description': self.description,
+                }
+        for key, val in self.par.items():
+            logger.debug(f"keys to save: {key}")
+            save_speaker[key] = val.dictionary(
+                    to_rem=('short_name', 'desc')
+                    )
+        with open(filename, 'w') as file:
+            save_speaker.write(file)
+
+    def read_from_file(file):
+        """read speakers data from file
+        """
+        # TODO test cases
+
     
 if __name__=='__main__':
-    visaton=Speaker("Visaton")
-    for key, val in visaton.par.items():
-        print(key, val)
-    visaton.key_as_short_name()
-    print(f"long name: {visaton.par['z'].name}, "
-          f"short name: {visaton.par['z'].short_name}")
-    visaton.par['fs'].value=27.0
-    visaton.par['Qes'].value=0.32
-    print (visaton.calEBP())
+    logger.setLevel=(logging.DEBUG)
+    spkr = Speaker()
+    spkr.par['fs'].value=27.0
+    spkr.par['Qes'].value=0.32
+    spkr.save_to_file()
+   # visaton=Speaker("Visaton")
+   # for key, val in visaton.par.items():
+   #     print(key, val)
+   # visaton.key_as_short_name()
+   # print(f"long name: {visaton.par['z'].name}, "
+   #       f"short name: {visaton.par['z'].short_name}")
+   # visaton.par['fs'].value=27.0
+   # visaton.par['Qes'].value=0.32
+   # print (visaton.calEBP())
