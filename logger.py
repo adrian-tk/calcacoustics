@@ -1,4 +1,5 @@
 """module for working with loggers
+
 format loggers, turn on or off some modules ie. kivy
 set levels and other stuff to ensure consistent logging
 for all app
@@ -6,13 +7,12 @@ for all app
 
 import logging
 
-
 # format for logging
-LOGFORMAT="%(levelname)-8s[%(name)s]\
-     [%(filename)s][%(funcName)s] %(message)s"
-LOGFILEFORMAT="%(asctime)s - %(levelname)-8s\
-        [%(name)s][%(filename)s:%(lineno)d]\
-        [%(funcName)s] %(message)s"
+#LOGFORMAT="%(levelname)-8s[%(name)s]\
+#     [%(filename)s][%(funcName)s] %(message)s"
+#LOGFILEFORMAT="%(asctime)s - %(levelname)-8s\
+#        [%(name)s][%(filename)s:%(lineno)d]\
+#        [%(funcName)s] %(message)s"
 #logging.basicConfig(level=logging.DEBUG, format=LOGFORMAT)
 # root logger, every module will have this unless 
 # specified another below
@@ -45,6 +45,11 @@ def setlog(verbose='standard'):
             logger.setLevel(logging.INFO)
             logcom.setLevel(logging.CRITICAL)
             Logger.setLevel(LOG_LEVELS["critical"])
+        case 'all':
+            logging.basicConfig(level=logging.DEBUG)
+            logger.setLevel(logging.DEBUG)
+            logcom.setLevel(logging.DEBUG)
+            Logger.setLevel(LOG_LEVELS["debug"])
 
 if __name__ == '__main__':
     # set config level of kivy

@@ -28,7 +28,7 @@ class TestInterface(unittest.TestCase):
 
         self.assertEqual(real_ans, expected_ans)
 
-    def test02_send_to_speaker_NOK(self):
+    def test_02_send_to_speaker_NOK(self):
 
         real_ans = self.inf.send({
             "section": "wrong",
