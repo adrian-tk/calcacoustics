@@ -1,4 +1,5 @@
 /env
+/area_for_testing
 __pycache__
 .~lock.*
 *.swp
