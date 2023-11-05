@@ -6,6 +6,7 @@ for all app
 
 import logging
 
+
 # format for logging
 LOGFORMAT="%(levelname)-8s[%(name)s]\
      [%(filename)s][%(funcName)s] %(message)s"
@@ -15,18 +16,40 @@ LOGFILEFORMAT="%(asctime)s - %(levelname)-8s\
 #logging.basicConfig(level=logging.DEBUG, format=LOGFORMAT)
 # root logger, every module will have this unless 
 # specified another below
-logging.basicConfig(level=logging.INFO)
 # .env file for ugly way to change kivy log level
 # for all project
 from dotenv import load_dotenv
 load_dotenv()
 from kivy.logger import Logger, LOG_LEVELS
-Logger.setLevel(LOG_LEVELS["warning"])
 # main logger
 # all child logger will have this same level
 logger = logging.getLogger('calac')
-logger.setLevel(logging.DEBUG)
 # log for communication, a lot of data
 # all child logger will have this same level
 logcom = logging.getLogger('calac.com')
-logcom.setLevel(logging.ERROR)
+
+def setlog(verbose='standard'):
+    match verbose:
+        case 'debug':
+            logging.basicConfig(level=logging.INFO)
+            logger.setLevel(logging.DEBUG)
+            logcom.setLevel(logging.ERROR)
+            Logger.setLevel(LOG_LEVELS["warning"])
+        case 'silent':
+            logging.basicConfig(level=logging.CRITICAL)
+            logger.setLevel(logging.CRITICAL)
+            logcom.setLevel(logging.CRITICAL)
+            Logger.setLevel(LOG_LEVELS["critical"])
+        case 'standard':
+            logging.basicConfig(level=logging.INFO)
+            logger.setLevel(logging.INFO)
+            logcom.setLevel(logging.CRITICAL)
+            Logger.setLevel(LOG_LEVELS["critical"])
+
+if __name__ == '__main__':
+    # set config level of kivy
+    # run twice
+    from kivy.config import Config
+    Config.set('kivy', 'log_level', 'error')
+    #Config.set('kivy', 'log_level', 'debug')
+    Config.write()

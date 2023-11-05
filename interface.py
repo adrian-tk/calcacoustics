@@ -46,7 +46,9 @@ class Interface():
     version="0.1"
 
     def __init__(self):
+        logger.debug("interface initialised")
         self.sp=speaker.Speaker()
+        logger.debug("interface for speaker")
         self.sp.key_as_short_name()
 
     def simple_attr(self, data, case):
@@ -78,17 +80,28 @@ class Interface():
             return("error")
 
     def speaker(self, data):
+        # don't used right now, mostly for testing purposes
+        version = "1.0.0"
         ans={}
         match data["item"]:
+            case "version":
+                data['action'] = 'answer'
+                data['value'] =  'speaker:'+version
+                logcom.debug(f"calc send to GUI: {data}")
+                return (data)
+                
             case "list_quantities":
                 for key, val in self.sp.par.items():
                     ans[key]=self.sp.par[key].dictionary()
                 logcom.debug(f"calc send to GUI: {ans}")
                 return(ans)
+
             case "name":
                 return (self.simple_attr(data, data["item"]))
+            
             case "producer":
                 return (self.simple_attr(data, data["item"]))
+
             case "model":
                 return (self.simple_attr(data, data["item"]))
                 """
@@ -131,18 +144,26 @@ class Interface():
 
 
     def send(self, data):
+        """check to which module shall be directed query, and
+        direct it there
+        """
+
         logcom.debug(f"calc get from GUI: {data}")
         match data["section"]:
             case "speaker":
                 return (self.speaker(data))
             case _:
-                logger.error(f"there is no {val} for section GUI sent")
+                err = (f"there is no {data['section']} " 
+                        "for section GUI sent")
+                logger.error(err)
+                return (err)
 
 if __name__=="__main__":
+    logcom.setLevel(logging.DEBUG)
     inf=Interface()
-    print(inf.send({
+    inf.send({
         "section": "speaker",
-        "item": "name",
+        "item": "version",
         "action": "get",
         "value": None,
-        }))
+        })

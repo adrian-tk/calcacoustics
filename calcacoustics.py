@@ -6,6 +6,8 @@ try:
     from logger import logger
     from logger import logcom
     logger.debug("imported loggers")
+    from logger import setlog
+    setlog('debug')
 except Exception as err:
     print("Can't import loggers")
     print(err)
