@@ -55,6 +55,6 @@ if __name__ == '__main__':
     # set config level of kivy
     # run twice
     from kivy.config import Config
-    Config.set('kivy', 'log_level', 'error')
-    #Config.set('kivy', 'log_level', 'debug')
+    #Config.set('kivy', 'log_level', 'error')
+    Config.set('kivy', 'log_level', 'debug')
     Config.write()

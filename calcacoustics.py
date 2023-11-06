@@ -8,16 +8,22 @@ try:
     logger.debug("imported loggers")
     from logger import setlog
     setlog('debug')
+    #setlog('all')
 except Exception as err:
     print("Can't import loggers")
     print(err)
     print("maybe You shold be in env?")
 
+import os
+
 from kivy.app import App
 from kivy.uix.label import Label
+from kivy.uix.button import Button
 from kivy.uix.accordion import Accordion, AccordionItem
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
+from kivy.uix.filechooser import FileChooserListView
+
 
 import interface
 from kivy_common import FloatInput
@@ -30,6 +36,52 @@ for logg in loggers:
     logger.debug(logg)
 
 class CalcAcousticsApp(App):
+
+    def val_get(self, item):
+        ans=self.inf.send({
+            "section": "speaker",
+            "item": item,
+            "action": "get",
+            "value": None
+            })
+        logger.debug(f"value getted is {ans['value']}")
+        return ans['value']
+
+    def val_set(self, item, val):
+        ans=self.inf.send({
+            "section": "speaker",
+            "item": item,
+            "action": "set",
+            "value": val 
+            })
+        if ans['value'] == val:
+            logger.debug(f"value set to {val}")
+        else:
+            logger.error(f"value is not set to {val}")
+        
+
+    def chosen_file(self, obj, val):
+        logger.debug(f"file chosen: {val}")
+        self.open_file_dialog(None)
+        ans=self.inf.send({
+            "section": "speaker",
+            "item": 'speaker.ini',
+            "action": "set",
+            "value": val
+            })
+        # wait for answer and update
+        if ans['action'] == 'answer':
+            self.update_all_gui()
+        else:
+            debug.error("can't update data from ini")
+
+    def update_all_gui(self):
+        print("update GUI values")
+        self.speaker_producer.text = (self.val_get('producer'))
+        self.speaker_model.text = (self.val_get('model'))
+        for key, val in self.speaker_qts.items():
+            print(key)
+            val['value'].text = self.val_get(key)
 
     def calc_update(self):
         ans=self.inf.send({
@@ -50,6 +102,20 @@ class CalcAcousticsApp(App):
             })
         self.tmpans.text=value
         self.calc_update()
+    def open_file_dialog(self, event):
+        logger.debug(f"key: open file pressed")
+        if self.file_choose.disabled:
+            self.file_choose.disabled = False
+            self.file_choose.opacity=1
+            self.name_all.size[1] += 200
+            self.name_bottom.size[1] += 200
+        else:
+            self.file_choose.disabled = True
+            self.file_choose.opacity=0
+            self.name_all.size[1] -= 200
+            self.name_bottom.size[1] -= 200
+
+
 
     def open_description(self, event):
         for key, val in self.speaker_qts.items():
@@ -117,29 +183,42 @@ class CalcAcousticsApp(App):
         model = ans['value']
 
 
-        name_all = BoxLayout(
+        self.name_all = BoxLayout(
                     orientation='vertical',
                     size=(500, HEIGHT),
                     size_hint = (1, None )
                     )
         name_top = BoxLayout(
                     orientation="horizontal",
-                    size=(500, name_all.height),
+                    size=(500, self.name_all.height),
                     size_hint = (1, None )
                     )
-        name_bottom = BoxLayout(
+        self.name_bottom = BoxLayout(
                     orientation="horizontal",
                     size=(500, 0),
                     size_hint = (1, None )
                     )
 
         #speaker_producer = Label(text=str(self.producer))
-        speaker_producer = Label(text=str(f"speaker producer: {producer}"))
-        speaker_model = Label(text=str(f"speaker model: {model}"))
-        name_top.add_widget(speaker_producer)
-        name_top.add_widget(speaker_model)
-        name_all.add_widget(name_top)
-        speaker_layout.add_widget(name_all)
+        self.speaker_producer = Label(text=str(producer))
+        self.speaker_model = Label(text=str(model))
+        open_speaker_ini = Button(text="open file")
+        open_speaker_ini.bind(on_press = self.open_file_dialog)
+        name_top.add_widget(self.speaker_producer)
+        name_top.add_widget(self.speaker_model)
+        name_top.add_widget(open_speaker_ini)
+        # TODO button and hide/unhide
+        speaker_ini_path = os.path.join(os.getcwd(), "speakers")
+        self.file_choose = FileChooserListView(
+                path = speaker_ini_path,
+                disabled = True,
+                opacity=0
+                )
+        self.file_choose.bind(selection=self.chosen_file)
+        self.name_bottom.add_widget(self.file_choose)
+        self.name_all.add_widget(name_top)
+        self.name_all.add_widget(self.name_bottom)
+        speaker_layout.add_widget(self.name_all)
         # ask about all quantities for speaker
         ans=self.inf.send({
             "section": "speaker",

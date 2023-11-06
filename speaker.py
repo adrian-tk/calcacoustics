@@ -108,7 +108,7 @@ class Speaker:
         if self.par['Qes'].value == 0.0:
             self.par['EBP'].value = 0.0
         else:
-            self.par['EBP'].value=self.par['fs'].value/self.par['Qes'].value
+            self.par['EBP'].value=float(self.par['fs'].value)/float(self.par['Qes'].value)
         logger.debug(f"calculated EBP is {self.par['EBP'].value}")
         return(self.par['EBP'].value)
     def key_as_short_name(self):

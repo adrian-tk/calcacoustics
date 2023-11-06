@@ -104,6 +104,12 @@ class Interface():
 
             case "model":
                 return (self.simple_attr(data, data["item"]))
+
+            case "speaker.ini":
+                self.sp.read_from_file(data['value'])
+                logger.debug("read ini file")
+                data['action'] = 'answer'
+                return data
                 """
                 if data["action"] == "get":
                     data["action"] = "answer"
@@ -129,6 +135,15 @@ class Interface():
                         self.sp.par[data["item"]].value = float(data["value"])
                        # print(self.sp.par[data["item"]].value)
                         logcom.debug(f"calc send to GUI: {data}")
+                    elif data["action"] == "get":
+                        data["action"] = "answer"
+                        print(self.sp.par[data["item"]].value)
+                        print(self.sp.par[data["item"]].value)
+                        print(self.sp.par[data["item"]].value)
+                        print(self.sp.par[data["item"]].value)
+                        data['value'] = str(self.sp.par[data["item"]].value)
+                        logcom.debug(f"calc send to GUI: {data}")
+                        return(data)
                     elif data["action"] == "calculate":
                         data["action"] = "answer"
                         if data["item"] == "EBP":
