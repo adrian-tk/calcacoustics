@@ -17,8 +17,8 @@ from quantity import quantity
 class Speaker:
 
     def __init__(self,
-                 producer="ACME",
-                 model="over9000",
+                 producer="producer",
+                 model="model",
                  description="some usual speaker",
                  ):
         self.producer = producer
@@ -166,10 +166,10 @@ class Speaker:
         """read speakers data from file
         """
         # TODO test cases
-        FILETOREAD = 'speakers/Visaton_W200SC8OHM.ini'
+        #FILETOREAD = 'speakers/Visaton_W200SC8OHM.ini'
         rspeak = configparser.ConfigParser()
-        rspeak.read(FILETOREAD)
-        logger.debug(f"readed file: {FILETOREAD}")
+        rspeak.read(file)
+        logger.debug(f"readed file: {file}")
         logger.debug(f"sections in file: {rspeak.sections()}")
         for section in rspeak.sections():
             if section == "general":
@@ -183,7 +183,7 @@ class Speaker:
                     logger.debug(f"section {section} readed from file")
                 else:
                     logger.warning(
-                            f"unknown section: {section} in {FILETOREAD}"
+                            f"unknown section: {section} in {file}"
                             )
         logger.debug("end of reading speaker config file")
 
