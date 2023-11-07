@@ -282,6 +282,8 @@ class CalcAcousticsApp(App):
                         qty_val = FloatInput(
                             multiline=False,
                             text=str(ival),
+                            size_hint = (None, 1),
+                            size = (80, 0)
                             )
                         qty_val.kname = key
                         qty_val.bind(text=self.num_val_update)
@@ -293,6 +295,10 @@ class CalcAcousticsApp(App):
                                 
                     case default:
                         tmp_q = Label(text=str(ival))
+                        if ikey == 'unit':
+                            tmp_q.size_hint = (None, 0.5)
+                        if ikey == 'short_name':
+                            tmp_q.size_hint = (None, 0.5)
                         top_layout.add_widget(tmp_q)
 
                         qty_widgets.update({
