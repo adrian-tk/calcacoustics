@@ -9,6 +9,10 @@ Version for Android is build using buildozer
 
 `ln -s calcacoustics.py main.py`
 
+### build, copy on mobile, and run
+
+`buildozer android debug deploy run`
+
 ### logging from terminal
 
 `adb logcat -s "python"`

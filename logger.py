@@ -18,9 +18,13 @@ import logging
 # specified another below
 # .env file for ugly way to change kivy log level
 # for all project
-from dotenv import load_dotenv
-load_dotenv()
-from kivy.logger import Logger, LOG_LEVELS
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+    from kivy.logger import Logger, LOG_LEVELS
+except Exception as err:
+    logging.error("can't load dotenv")
+    logging.error(err)
 # main logger
 # all child logger will have this same level
 logger = logging.getLogger('calac')
@@ -34,22 +38,30 @@ def setlog(verbose='standard'):
             logging.basicConfig(level=logging.INFO)
             logger.setLevel(logging.DEBUG)
             logcom.setLevel(logging.ERROR)
-            Logger.setLevel(LOG_LEVELS["warning"])
+            try:
+                Logger.setLevel(LOG_LEVELS["warning"])
+            except: pass
         case 'silent':
             logging.basicConfig(level=logging.CRITICAL)
             logger.setLevel(logging.CRITICAL)
             logcom.setLevel(logging.CRITICAL)
-            Logger.setLevel(LOG_LEVELS["critical"])
+            try:
+                Logger.setLevel(LOG_LEVELS["critical"])
+            except: pass
         case 'standard':
             logging.basicConfig(level=logging.INFO)
             logger.setLevel(logging.INFO)
             logcom.setLevel(logging.CRITICAL)
-            Logger.setLevel(LOG_LEVELS["critical"])
+            try:
+                Logger.setLevel(LOG_LEVELS["critical"])
+            except: pass
         case 'all':
             logging.basicConfig(level=logging.DEBUG)
             logger.setLevel(logging.DEBUG)
             logcom.setLevel(logging.DEBUG)
-            Logger.setLevel(LOG_LEVELS["debug"])
+            try:
+                Logger.setLevel(LOG_LEVELS["debug"])
+            except: pass
 
 if __name__ == '__main__':
     # set config level of kivy
