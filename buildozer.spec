@@ -4,10 +4,10 @@
 title = calcacoustics
 
 # (str) Package name
-package.name = mcalcacoustics
+package.name = calcacoustics
 
 # (str) Package domain (needed for android/ios packaging)
-package.domain = org.test
+package.domain = adriantomczyk.eu
 
 # (str) Source code where the main.py live
 source.dir = .
@@ -19,7 +19,7 @@ source.include_exts = py,png,jpg,kv,atlas,ini
 #source.include_patterns = assets/*,images/*.png
 
 # (list) Source files to exclude (let empty to not exclude anything)
-#source.exclude_exts = spec
+source.exclude_exts = ./bin/*
 
 # (list) List of directory to exclude (let empty to not exclude anything)
 #source.exclude_dirs = tests, bin, venv
@@ -37,7 +37,7 @@ version = 0.1
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy
+requirements = python3,kivy,python-dotenv
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
@@ -51,7 +51,7 @@ requirements = python3,kivy
 
 # (list) Supported orientations
 # Valid options are: landscape, portrait, portrait-reverse or landscape-reverse
-orientation = portrait
+orientation = portrait, landscape
 
 # (list) List of service to declare
 #services = NAME:ENTRYPOINT_TO_PY,NAME2:ENTRYPOINT2_TO_PY

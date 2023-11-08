@@ -16,6 +16,9 @@ except Exception as err:
 
 import os
 
+from kivy.utils import platform
+if platform == 'android':
+    from android import mActivity
 from kivy.app import App
 from kivy.uix.label import Label
 from kivy.uix.button import Button
@@ -207,8 +210,19 @@ class CalcAcousticsApp(App):
         name_top.add_widget(self.speaker_producer)
         name_top.add_widget(self.speaker_model)
         name_top.add_widget(open_speaker_ini)
-        # TODO button and hide/unhide
-        speaker_ini_path = os.path.join(os.getcwd(), "speakers")
+        if platform == 'android':
+            context = mActivity.getApplicationContext()
+            result = context.getExternalFilesDir(None)
+            if result:
+                speaker_ini_path = str(result.toString())
+            else:
+                speaker_ini_path = app_storage_path()
+            ini_file = speaker_ini_path + "test.ini"
+            with open(ini_file, 'w') as f:
+                f.write('test')
+
+        else:
+            speaker_ini_path = os.path.join(os.getcwd(), "speakers")
         self.file_choose = FileChooserListView(
                 path = speaker_ini_path,
                 disabled = True,

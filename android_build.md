@@ -9,7 +9,13 @@ Version for Android is build using buildozer
 
 `ln -s calcacoustics.py main.py`
 
+ - install ccache to save data from previous compilation
+
+`sudo aptitude install ccache`
+
 ### build, copy on mobile, and run
+
+in mobile turn on USB debugging and installing software via USB
 
 `buildozer android debug deploy run`
 
