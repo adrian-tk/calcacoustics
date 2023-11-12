@@ -1,6 +1,7 @@
 #! env/bin/python
 
 # import logging stuff at first
+
 try:
     from logger import logging
     from logger import logger
@@ -15,7 +16,7 @@ except Exception as err:
     print("maybe You shold be in env?")
 
 import os
-
+from kivy.core.window import Window
 from kivy.utils import platform
 if platform == 'android':
     from android import mActivity
@@ -158,12 +159,27 @@ class CalcAcousticsApp(App):
         for key, val in ans.items():
             logger.debug(key, val)
 
+    def windows_size(self, *args):
+        if platform == 'android':
+            if self.root.size[0] > self.root.size[1]:
+                self.root.orientation='vertical'
+            else:
+                self.root.orientation='horizontal'
+        else:
+            if self.root.size[0] < self.root.size[1]:
+                self.root.orientation='vertical'
+            else:
+                self.root.orientation='horizontal'
+
+
     def build(self):
         """ buld views of GUI
         accrodion type
         """
+        Window.bind(on_resize=self.windows_size)
         self.HEIGHT='30sp'
-        root=Accordion()
+        self.root=Accordion()
+        self.windows_size()
         self.inf=interface.Interface()
         # Speaker part
         # speaker data, mostly from poducer
@@ -334,14 +350,14 @@ class CalcAcousticsApp(App):
         self.tmpans = Label(text="END")
         speaker_layout.add_widget(self.tmpans)
         speaker_item.add_widget(speaker_layout)
-        root.add_widget(speaker_item)
+        self.root.add_widget(speaker_item)
         #Enclosure
         enclosure_item=AccordionItem(title="Enclosure")
         enclosure_item.add_widget(Label(text="Enclosure data and calculation"))
-        root.add_widget(enclosure_item)
+        self.root.add_widget(enclosure_item)
         # open speaker item as default when running program
         speaker_item.collapse=False
-        return root
+        return self.root
 
 if __name__=="__main__":
     CalcAcousticsApp().run()
