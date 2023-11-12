@@ -26,6 +26,7 @@ from kivy.uix.accordion import Accordion, AccordionItem
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.filechooser import FileChooserListView
+from kivy.metrics import sp
 
 
 import interface
@@ -38,9 +39,11 @@ loggers = [logging.getLogger(name) for name in \
 for logg in loggers:
     logger.debug(logg)
 
+logger.debug(f"platform is {platform}")
+
 class CalcAcousticsApp(App):
 
-    def val_get(self, item):
+    def speaker_get(self, item):
         ans=self.inf.send({
             "section": "speaker",
             "item": item,
@@ -50,7 +53,7 @@ class CalcAcousticsApp(App):
         logger.debug(f"value getted is {ans['value']}")
         return ans['value']
 
-    def val_set(self, item, val):
+    def speaker_set(self, item, val):
         ans=self.inf.send({
             "section": "speaker",
             "item": item,
@@ -80,11 +83,11 @@ class CalcAcousticsApp(App):
 
     def update_all_gui(self):
         print("update GUI values")
-        self.speaker_producer.text = (self.val_get('producer'))
-        self.speaker_model.text = (self.val_get('model'))
+        self.speaker_producer.text = (self.speaker_get('producer'))
+        self.speaker_model.text = (self.speaker_get('model'))
         for key, val in self.speaker_qts.items():
             print(key)
-            val['value'].text = self.val_get(key)
+            val['value'].text = self.speaker_get(key)
 
     def calc_update(self):
         ans=self.inf.send({
@@ -105,18 +108,21 @@ class CalcAcousticsApp(App):
             })
         self.tmpans.text=value
         self.calc_update()
+
     def open_file_dialog(self, event):
         logger.debug(f"key: open file pressed")
         if self.file_choose.disabled:
             self.file_choose.disabled = False
             self.file_choose.opacity=1
-            self.name_all.size[1] += 200
-            self.name_bottom.size[1] += 200
+
+            self.name_all.size[1] += sp(200)
+            self.name_bottom.size[1] += sp(200)
+            self.tmpans.text=self.file_choose.path
         else:
             self.file_choose.disabled = True
             self.file_choose.opacity=0
-            self.name_all.size[1] -= 200
-            self.name_bottom.size[1] -= 200
+            self.name_all.size[1] -= sp(200)
+            self.name_bottom.size[1] -= sp(200)
 
 
 
@@ -127,8 +133,8 @@ class CalcAcousticsApp(App):
                 logger.debug(f"key: {key} pressed")
                 a=self.speaker_qts[key]
                 if a['desc_label'].disabled:
-                    a['bottom_layout'].size[1] = 70
-                    a['all_layout'].size[1] = 100
+                    a['bottom_layout'].size[1] = '70sp'
+                    a['all_layout'].size[1] = '100sp'
                     a['desc_label'].opacity=1
                     a['desc_label'].disabled=False
                     a['desc_label'].size = a['bottom_layout'].size
@@ -136,7 +142,7 @@ class CalcAcousticsApp(App):
                     #print(a['desc_label'].text_size)
                 else:
                     a['bottom_layout'].size=(500,0 )
-                    a['all_layout'].size=(500, 30)
+                    a['all_layout'].size=(500, self.HEIGHT)
                     a['desc_label'].opacity=0
                     a['desc_label'].disabled=True
 
@@ -156,7 +162,7 @@ class CalcAcousticsApp(App):
         """ buld views of GUI
         accrodion type
         """
-        HEIGHT=30
+        self.HEIGHT='30sp'
         root=Accordion()
         self.inf=interface.Interface()
         # Speaker part
@@ -188,7 +194,7 @@ class CalcAcousticsApp(App):
 
         self.name_all = BoxLayout(
                     orientation='vertical',
-                    size=(500, HEIGHT),
+                    size=(500, self.HEIGHT),
                     size_hint = (1, None )
                     )
         name_top = BoxLayout(
@@ -217,12 +223,13 @@ class CalcAcousticsApp(App):
                 speaker_ini_path = str(result.toString())
             else:
                 speaker_ini_path = app_storage_path()
+            logger.debug(f"ini path: {speaker_ini_path}")
             ini_file = speaker_ini_path + "test.ini"
             with open(ini_file, 'w') as f:
                 f.write('test')
-
         else:
             speaker_ini_path = os.path.join(os.getcwd(), "speakers")
+            logger.debug(f"ini path: {speaker_ini_path}")
         self.file_choose = FileChooserListView(
                 path = speaker_ini_path,
                 disabled = True,
@@ -253,7 +260,7 @@ class CalcAcousticsApp(App):
             # bottom to hide with help, and block
             all_layout = BoxLayout(
                     orientation='vertical',
-                    size=(500, HEIGHT),
+                    size=(500, self.HEIGHT),
                     size_hint = (1, None )
                     )
             top_layout = BoxLayout(
@@ -297,7 +304,7 @@ class CalcAcousticsApp(App):
                             multiline=False,
                             text=str(ival),
                             size_hint = (None, 1),
-                            size = (80, 0)
+                            size = ('80sp', 0)
                             )
                         qty_val.kname = key
                         qty_val.bind(text=self.num_val_update)
