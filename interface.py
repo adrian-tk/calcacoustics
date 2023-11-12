@@ -43,9 +43,9 @@ import speaker
 #TODO: test script
 
 class Interface():
-    version="0.1"
 
     def __init__(self):
+        self.version="0.1"
         logger.debug("interface initialised")
         self.sp=speaker.Speaker()
         logger.debug("interface for speaker")
@@ -81,12 +81,11 @@ class Interface():
 
     def speaker(self, data):
         # don't used right now, mostly for testing purposes
-        version = "1.0.0"
         ans={}
         match data["item"]:
             case "version":
                 data['action'] = 'answer'
-                data['value'] =  'speaker:'+version
+                data['value'] =  str(self.version)
                 logcom.debug(f"calc send to GUI: {data}")
                 return (data)
                 
@@ -137,10 +136,6 @@ class Interface():
                         logcom.debug(f"calc send to GUI: {data}")
                     elif data["action"] == "get":
                         data["action"] = "answer"
-                        print(self.sp.par[data["item"]].value)
-                        print(self.sp.par[data["item"]].value)
-                        print(self.sp.par[data["item"]].value)
-                        print(self.sp.par[data["item"]].value)
                         data['value'] = str(self.sp.par[data["item"]].value)
                         logcom.debug(f"calc send to GUI: {data}")
                         return(data)
@@ -176,9 +171,9 @@ class Interface():
 if __name__=="__main__":
     logcom.setLevel(logging.DEBUG)
     inf=Interface()
-    inf.send({
+    print(inf.send({
         "section": "speaker",
         "item": "version",
         "action": "get",
         "value": None,
-        })
+        }))

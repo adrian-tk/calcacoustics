@@ -28,7 +28,7 @@ class TestInterface(unittest.TestCase):
 
         self.assertEqual(real_ans, expected_ans)
 
-    def test_02_send_to_speaker_NOK(self):
+    def test_send_to_speaker_NOK(self):
 
         real_ans = self.inf.send({
             "section": "wrong",
@@ -40,6 +40,7 @@ class TestInterface(unittest.TestCase):
         expected_ans = ("there is no wrong for section GUI sent")
 
         self.assertEqual(real_ans, expected_ans)
+
 
 if __name__=='__main__':
     unittest.main()
