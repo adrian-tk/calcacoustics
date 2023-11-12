@@ -17,13 +17,13 @@ class TestInterface(unittest.TestCase):
             "value": None,
         })
         # remove version number from answer
-        real_ans['value'] = real_ans['value'][:7]
+        #real_ans['value'] = real_ans['value'][:7]
 
         expected_ans = {
             "section": "speaker",
             "item": "version",
             "action": "answer",
-            "value": "speaker",
+            "value": "0.1",
         }
 
         self.assertEqual(real_ans, expected_ans)
