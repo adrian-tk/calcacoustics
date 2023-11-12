@@ -19,7 +19,7 @@ source.include_exts = py,png,jpg,kv,atlas,ini
 #source.include_patterns = assets/*,images/*.png
 
 # (list) Source files to exclude (let empty to not exclude anything)
-source.exclude_exts = ./bin/*
+#source.exclude_exts = ./bin/*
 
 # (list) List of directory to exclude (let empty to not exclude anything)
 #source.exclude_dirs = tests, bin, venv
