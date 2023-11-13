@@ -142,7 +142,7 @@ class Interface():
                     elif data["action"] == "calculate":
                         data["action"] = "answer"
                         if data["item"] == "EBP":
-                            ans=self.sp.calEBP()
+                            ans=self.sp.setEBP()
                             logger.debug(f"calculate EBP")
                             data["value"] = ans
                             logcom.debug(f"calc send to GUI: {data}")

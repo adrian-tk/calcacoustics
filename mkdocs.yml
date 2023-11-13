@@ -1,0 +1,4 @@
+site_name: CalcAcoustics Docs
+
+theme:
+  name: "material"

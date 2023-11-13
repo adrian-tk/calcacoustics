@@ -1,3 +1,16 @@
+"""Provide calculations and values for speaker.
+
+This module allows the user to work with speaker.
+
+Examples:
+    >>> import speaker
+    >>> speaker.calEBP(1.0, 1.0)
+    1.0
+
+Contains the following functions:
+- `calEBP(Qes, fs)` returns EPB
+"""
+
 try:
     from logger import logging
     from logger import logger
@@ -14,7 +27,35 @@ import os
 import configparser
 from quantity import quantity 
 
+def calEBP(Qes: float, fs: float) -> float:
+    """Calculate EBP (Efficiency Bandwidth Product)
+
+    Examples:
+        >>> calEBP(0.32, 27.0)
+        84.375
+    
+    Args:
+        Qes:    Electrical Q factor, unitless
+        fs:     Resonance frequency, Hz
+
+    Returns:
+        Efficiency Bandwidth Product
+
+    Raises:
+        ZeroDivisionError: trying to divide by Qes == 0
+    """
+
+    if Qes == 0:
+        raise ZeroDivisionError("division by zero")
+
+    EBP = float(fs)/Qes
+
+    return EBP
+
+
 class Speaker:
+    """Speaker parameters and calculations (without enclosure)
+    """
 
     def __init__(self,
                  producer="producer",
@@ -104,13 +145,23 @@ class Speaker:
     mf=600      # Magnetic flux in uWebber
     Qms=3.4     # Mechanical Q factor
     # TODO add other
-    def calEBP(self):
-        if self.par['Qes'].value == 0.0:
+
+
+
+    def setEBP(self):
+        """set EBP (Efficiency Bandwidth Product) in speaker class
+        """
+
+        try:
+            self.par['EBP'].value = calEBP(
+                    float(self.par['Qes'].value),
+                    float(self.par['fs'].value)
+                    )
+            logger.debug(f"calculated EBP is {self.par['EBP'].value}")
+        except:
             self.par['EBP'].value = 0.0
-        else:
-            self.par['EBP'].value=float(self.par['fs'].value)/float(self.par['Qes'].value)
-        logger.debug(f"calculated EBP is {self.par['EBP'].value}")
-        return(self.par['EBP'].value)
+            logger.exception("can't calculate EBP")
+
     def key_as_short_name(self):
         for key, val in self.par.items():
             val.short_name=key
@@ -191,11 +242,11 @@ class Speaker:
 if __name__=='__main__':
     logger.setLevel=(logging.DEBUG)
     spkr = Speaker()
-    spkr.read_from_file()
-    print(f"speaker producer from file: {spkr.producer}")
-    print(f"speaker rated power from file: {spkr.par['r_pow'].value}")
-   # spkr.par['fs'].value=27.0
-   # spkr.par['Qes'].value=0.32
+   # spkr.read_from_file()
+   # print(f"speaker producer from file: {spkr.producer}")
+   # print(f"speaker rated power from file: {spkr.par['r_pow'].value}")
+    spkr.par['fs'].value=27.0
+    spkr.par['Qes'].value=0.32
    # spkr.save_to_file()
    # visaton=Speaker("Visaton")
    # for key, val in visaton.par.items():
@@ -205,4 +256,8 @@ if __name__=='__main__':
    #       f"short name: {visaton.par['z'].short_name}")
    # visaton.par['fs'].value=27.0
    # visaton.par['Qes'].value=0.32
-   # print (visaton.calEBP())
+    print (f"EBP = {spkr.par['EBP'].value}")
+    print (calEBP(0.32, 27.0))
+    print (f"EBP = {spkr.par['EBP'].value}")
+    print (spkr.setEBP())
+    print (f"EBP = {spkr.par['EBP'].value}")
