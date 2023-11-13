@@ -179,7 +179,8 @@ class CalcAcousticsApp(App):
         Window.bind(on_resize=self.windows_size)
         self.HEIGHT='30sp'
         self.root=Accordion()
-        self.windows_size()
+        if platform == 'android':
+            self.root.orientation='veritcal'
         self.inf=interface.Interface()
         # Speaker part
         # speaker data, mostly from poducer
@@ -357,6 +358,7 @@ class CalcAcousticsApp(App):
         self.root.add_widget(enclosure_item)
         # open speaker item as default when running program
         speaker_item.collapse=False
+        self.windows_size()
         return self.root
 
 if __name__=="__main__":
