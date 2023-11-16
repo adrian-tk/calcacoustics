@@ -80,7 +80,6 @@ class Interface():
             return("error")
 
     def speaker(self, data):
-        # don't used right now, mostly for testing purposes
         ans={}
         match data["item"]:
             case "version":
@@ -144,7 +143,7 @@ class Interface():
                         if data["item"] == "EBP":
                             ans=self.sp.setEBP()
                             logger.debug(f"calculate EBP")
-                            data["value"] = ans
+                            data["value"] =str(self.sp.par[data["item"]].value)
                             logcom.debug(f"calc send to GUI: {data}")
                             return(data)
 
@@ -173,7 +172,7 @@ if __name__=="__main__":
     inf=Interface()
     print(inf.send({
         "section": "speaker",
-        "item": "version",
-        "action": "get",
+        "item": "EBP",
+        "action": "calculate",
         "value": None,
         }))
