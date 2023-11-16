@@ -2,3 +2,14 @@ site_name: CalcAcoustics Docs
 
 theme:
   name: "material"
+
+plugins:
+  - mkdocstrings
+
+nav:
+  - Index: index.md
+  - tutorials.md
+  - How-to Guides: how-to-guides.md
+  - reference.md
+  - explanation.md
+

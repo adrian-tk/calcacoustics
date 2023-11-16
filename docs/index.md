@@ -1,17 +1,18 @@
-# Welcome to MkDocs
+# Welcome to CalcAcoustics
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+This site contains the project documentation for the `CalcAcoustics` project.
+CalcAcoustic is intended to be a calculator for various acoustics topics.
 
-## Commands
+## Table of Contents
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
+1. [Tutorials](tutorials.md)
+2. [How-To Guides](how-to-guides.md)
+3. [Reference](reference.md)
+4. [Explanation](explanation.md)
 
-## Project layout
+The documentation follows Diátaxis practice: [Diátaxis documentation framework](https://diataxis.fr/)
 
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+## Plans 
+
+There are a lots of plans right now.
+

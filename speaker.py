@@ -54,7 +54,10 @@ def calEBP(Qes: float, fs: float) -> float:
 
 
 class Speaker:
-    """Speaker parameters and calculations (without enclosure)
+    """Class for parameters and calculations of raw speaker (without enclosure)
+
+    Speaker's parameter are hold in dictionary, rest of app use it to
+    iterate, so modify it causes update in GUI, .ini files etc.
     """
 
     def __init__(self,
@@ -150,6 +153,9 @@ class Speaker:
 
     def setEBP(self):
         """set EBP (Efficiency Bandwidth Product) in speaker class
+
+        This function only wraps calEBP. It get a values from dictionary,
+        send it to calEBP, and put returned value to dictionary.
         """
 
         try:
