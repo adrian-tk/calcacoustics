@@ -1,7 +1,7 @@
 /env
 /area_for_testing
-/.buildozer
-/bin
+/android/.buildozer
+/android/bin
 __pycache__
 .~lock.*
 *.swp
