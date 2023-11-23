@@ -3,7 +3,7 @@
 import unittest
 import sys
 sys.path.append("..")
-import logger
+from solver import logger
 import logging
 
 class TestLogger(unittest.TestCase):

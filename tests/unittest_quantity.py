@@ -3,7 +3,7 @@
 import unittest
 import sys
 sys.path.append("..")
-import quantity
+import common.quantity as quantity
 
 
 def some_val(a):

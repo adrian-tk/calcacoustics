@@ -6,7 +6,7 @@ sys.path.append("..")
 import os
 import configparser
 
-import speaker
+import solver.speaker as speaker
 
 
 def some_val(a):

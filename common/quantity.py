@@ -1,7 +1,7 @@
 import logging
 logger = logging.getLogger(__name__)
 
-import convert
+from common import convert
 
 class quantity:
     def __init__(self,

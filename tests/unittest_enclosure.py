@@ -3,7 +3,7 @@
 import unittest
 import sys
 sys.path.append("..")
-import enclosure
+import solver.enclosure as enclosure
 
 class TestEnclosure(unittest.TestCase):
 

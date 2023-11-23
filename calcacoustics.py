@@ -3,11 +3,11 @@
 # import logging stuff at first
 
 try:
-    from logger import logging
-    from logger import logger
-    from logger import logcom
+    from solver.logger import logging 
+    from solver.logger import logger
+    from solver.logger import logcom
     logger.debug("imported loggers")
-    from logger import setlog
+    from solver.logger import setlog
     setlog('debug')
     #setlog('all')
 except Exception as err:
@@ -31,8 +31,8 @@ from kivy.metrics import sp
 
 
 import interface
-from kivy_common import FloatInput
-from kivy_common import DescButton
+from gui_kivy.kivy_common import FloatInput
+from gui_kivy.kivy_common import DescButton
 
 # print available loggers
 loggers = [logging.getLogger(name) for name in \

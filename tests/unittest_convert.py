@@ -3,8 +3,8 @@
 import unittest
 import sys
 sys.path.append("..")
-import convert
-import quantity
+import common.convert as convert
+import common.quantity as quantity
 import csv
 
 FILEWITHTESTDATA="./testdata.csv"

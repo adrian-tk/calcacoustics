@@ -26,9 +26,9 @@ any additional value possible
 #logcom = logging.getLogger(f"calac.com.{__name__}")
 #logger = logging.getLogger(f"calac.{__name__}")
 try:
-    from logger import logging
-    from logger import logger
-    from logger import logcom
+    from solver.logger import logging
+    from solver.logger import logger
+    from solver.logger import logcom
     # set this logger as a child of main logger
     logger = logger.getChild(__name__)
     logcom = logcom.getChild(__name__)
@@ -39,7 +39,8 @@ except Exception as err:
     print("Maybe You shall be in env?")
 
 
-import speaker
+#import speaker
+from solver import speaker
 #TODO: test script
 
 class Interface():

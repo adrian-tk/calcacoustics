@@ -12,9 +12,9 @@ Contains the following functions:
 """
 
 try:
-    from logger import logging
-    from logger import logger
-    from logger import logcom
+    from solver.logger import logging
+    from solver.logger import logger
+    from solver.logger import logcom
     # set this logger as a child of main logger
     logger = logger.getChild(__name__)
     logger.debug("imported loggers")
@@ -25,7 +25,8 @@ except Exception as err:
 
 import os
 import configparser
-from quantity import quantity 
+#from quantity import quantity 
+from common.quantity import quantity 
 
 def calEBP(Qes: float, fs: float) -> float:
     """Calculate EBP (Efficiency Bandwidth Product)

@@ -1,9 +1,9 @@
 # import logging
 # import logging stuff at first
 try:
-    from logger import logging
-    from logger import logger
-    from logger import logcom
+    from solver.logger import logging
+    from solver.logger import logger
+    from solver.logger import logcom
     # set this logger as a child of main logger
     logger = logger.getChild(__name__)
     logger.debug("imported loggers")
@@ -12,7 +12,7 @@ except Exception as err:
     print(err)
     print("Maybe You shall be in env?")
 
-import quantity as q
+import common.quantity as q
 
 class Enclosure:
 
