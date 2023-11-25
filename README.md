@@ -1,4 +1,6 @@
 # calcacoustics
-calculator for various acoustic topic
+Calculator for various acoustic topic.
 
-More information in [documentation](docs/index.md)
+At this time it is at very early stage, so don't expect it will calculate something.
+
+More information in [documentation](https://adrian-tk.github.io/calcacoustics/)
