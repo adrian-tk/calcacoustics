@@ -10,7 +10,7 @@ CalcAcoustic is intended to be a calculator for various acoustics topics.
 3. [Reference](reference.md)
 4. [Explanation](explanation.md)
 
-The documentation follows Diátaxis practice: [Diátaxis documentation framework](https://diataxis.fr/)
+The documentation follows [Diátaxis](https://diataxis.fr/) practice.
 
 ## Plans 
 

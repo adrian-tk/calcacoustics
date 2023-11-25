@@ -2,6 +2,7 @@
 /area_for_testing
 /android/.buildozer
 /android/bin
+/mkdocs/site
 __pycache__
 .~lock.*
 *.swp
