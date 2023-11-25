@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://abc.def/how-to-guides/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://abc.def/help/" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>How-to Guides - CalcAcoustics</title>
+    <title>calcacoustic help - CalcAcoustics</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "How-to Guides";
-        var mkdocs_page_input_path = "how-to-guides.md";
-        var mkdocs_page_url = "/how-to-guides/";
+        var mkdocs_page_name = "calcacoustic help";
+        var mkdocs_page_input_path = "help.md";
+        var mkdocs_page_url = "/help/";
       </script>
     
     <!--[if lt IE 9]>
@@ -47,18 +47,8 @@
                 <li class="toctree-l1"><a class="reference internal" href="../tutorials/">Turorial</a>
                 </li>
               </ul>
-              <ul class="current">
-                <li class="toctree-l1 current"><a class="reference internal current" href="./">How-to Guides</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#python-scripts">Python scripts</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#android">Android</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#build-from-script">Build from script</a>
-    </li>
-        </ul>
-    </li>
-    </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../how-to-guides/">How-to Guides</a>
                 </li>
               </ul>
               <ul>
@@ -83,7 +73,7 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
-      <li class="breadcrumb-item active">How-to Guides</li>
+      <li class="breadcrumb-item active">calcacoustic help</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -92,47 +82,15 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <p>How-to guides are directions that take the reader through the steps 
-required to solve a real-world problem. How-to guides are goal-oriented.</p>
-<h1 id="how-to-install-calcacoustics">How To install CalcAcoustics</h1>
-<p>CalcAcoustics is written in Python using Kivy as GUI, so  it shall work in many place You can install Python.
-Especially PC on Linux or Windows, IOS, Android. Rpi or other ARM shall also work.
-At this time no binaries are available, so only the Python scripts are avaiable.</p>
-<h2 id="python-scripts">Python scripts</h2>
-<ol>
-<li>Download files using git:
-<code>git clone git@github.com:adrian-tk/calcacoustics.git</code></li>
-<li>In calcacoustic directory create a virtual environment and activate it:
-<code>python3 -m venv env</code>
-<code>source env/bin/activate</code></li>
-<li>Install all requirements with pip:
-<code>pip install -r requirements.txt</code></li>
-<li>Run script:
-<code>./calcacoustics.py</code> or click it in windows manager</li>
-</ol>
-<h2 id="android">Android</h2>
-<h3 id="build-from-script">Build from script</h3>
-<p>At this time there is no ready binaries, You can build them using buildozer
-1. Get all Python script as in Python scirpts section
-2. export path
-<code>export PATH=$PATH:~/.local/bin/</code>
-3. build:
-<code>buildozer -v android</code>
-Binaries shall be in ./bin directory</p>
-<h1 id="how-to-calculate-ebp">How To Calculate EBP?</h1>
-<p>TODO
-In Speaker part put a xx and axx
-EBP will be in EBP label</p>
-<h1 id="how-to-decide-which-enclosure-is-the-best-for-the-speaker">How To decide which enclosure is the best for the speaker</h1>
-<p>TODO
-EBP and stuff</p>
+                <h1 id="calcacoustic-help">calcacoustic help</h1>
+<h2 id="speakers-coefficient">speakers coefficient</h2>
+<p>$$Q_{ms}: Mechanical\ Q$$</p>
+<p>$$Q_{es}: Electrical\ Q$$</p>
+<p>$$Q_{ts}: Total\ Q$$</p>
+<p>$$Q_{ts}=\frac{1}{Q_{ms}}+\frac{1}{Q_{es}}$$</p>
               
             </div>
           </div><footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../tutorials/" class="btn btn-neutral float-left" title="Turorial"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../reference/" class="btn btn-neutral float-right" title="Reference">Next <span class="icon icon-circle-arrow-right"></span></a>
-    </div>
 
   <hr/>
 
@@ -154,10 +112,6 @@ EBP and stuff</p>
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../tutorials/" style="color: #fcfcfc">&laquo; Previous</a></span>
-    
-    
-      <span><a href="../reference/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
