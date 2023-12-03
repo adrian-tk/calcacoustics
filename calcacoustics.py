@@ -28,6 +28,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.filechooser import FileChooserListView
 from kivy.metrics import sp
+#from kivy.uix.widget import Widget
 
 
 import interface
@@ -41,6 +42,148 @@ for logg in loggers:
     logger.debug(logg)
 
 logger.debug(f"platform is {platform}")
+
+class QuantBundle():
+    """class for creating and working with multiple data widgets
+    
+    object of this class shall be self. to dispatch working
+    """
+    def __init__(self, dictionary):
+        self.HEIGHT = '30sp'
+        self.dictionary = dictionary
+        # dictionary of dictionaries to hold
+        # data from widget created in loop
+        # ie: {Qts: {unit: <some object>}}
+        self.data_qts={}
+
+    def open_description(self, event):
+        for key, val in self.data_qts.items():
+            if val['desc_btn'] == event:
+                #print (self.speaker_qts[key])
+                logger.debug(f"key: {key} pressed")
+                a=self.data_qts[key]
+                if a['desc_label'].disabled:
+                    a['bottom_layout'].size[1] = '70sp'
+                    a['big_layout'].size[1] = '100sp'
+                    a['desc_label'].opacity=1
+                    a['desc_label'].disabled=False
+                    a['desc_label'].size = a['bottom_layout'].size
+                    a['desc_label'].text_size = a['desc_label'].size
+                    #print(a['desc_label'].text_size)
+                else:
+                    a['bottom_layout'].size=(500,0 )
+                    a['big_layout'].size=(500, self.HEIGHT)
+                    a['desc_label'].opacity=0
+                    a['desc_label'].disabled=True
+
+    def populate_with_dicts(self):
+        """populate widget with data from dictionary
+
+        main_layout:
+            big_layout:
+                top_layout:
+                bottom_layout:
+            big_layout:
+                top_layout:
+                bottom_layout:
+            ...
+        """
+        # main layout
+        main_layout=BoxLayout(orientation="vertical")
+        # outside loop for get quantity
+        for key, val in self.dictionary.items():
+            # dict for widgets in quantity
+            qty_widgets={}
+            # BoxLayout for quantity
+            # top: name, short name, value, unit etc.
+            # bottom to hide with help, and lock
+            big_layout = BoxLayout(
+                    orientation='vertical',
+                    size=(500, self.HEIGHT),
+                    size_hint = (1, None )
+                    )
+            top_layout = BoxLayout(
+                    orientation="horizontal",
+                    size=(500, big_layout.height),
+                    size_hint = (1, None )
+                    )
+            bottom_layout = BoxLayout(
+                    orientation="horizontal",
+                    size=(500, 0),
+                    size_hint = (1, None )
+                    )
+            qty_widgets.update({
+                    'big_layout': big_layout,
+                    'top_layout': top_layout,
+                    'bottom_layout': bottom_layout
+                    })
+            # internal loop for populate each quantity
+            for ikey, ival in self.dictionary[key].items():
+                match ikey:
+                    case "desc":
+                        desc_btn = DescButton(btnsize = big_layout.height)
+                        desc_btn.bind(on_press=self.open_description)
+                        top_layout.add_widget(desc_btn)
+                        desc_label = Label(
+                                text=str(ival),
+                                valign = 'top',
+                                padding = [5, 5, 5, 5]
+                                )
+                        bottom_layout.add_widget(desc_label)
+                        desc_label.disabled=True
+                        desc_label.opacity=0
+
+                        qty_widgets.update({
+                            'desc_btn': desc_btn,
+                            'desc_label': desc_label
+                            })
+
+                    case "value":
+                        qty_val = FloatInput(
+                            multiline=False,
+                            text=str(ival),
+                            size_hint = (None, 1),
+                            size = ('80sp', 0)
+                            )
+                        qty_val.kname = key
+                        qty_val.bind(text=self.num_val_update)
+                        top_layout.add_widget(qty_val)
+
+                        qty_widgets.update({
+                            'value': qty_val,
+                            })
+                                
+                    case default:
+                        tmp_q = Label(text=str(ival))
+                        if ikey == 'unit':
+                            tmp_q.size_hint = (None, 0.5)
+                        if ikey == 'short_name':
+                            tmp_q.size_hint = (None, 0.5)
+                        top_layout.add_widget(tmp_q)
+
+                        qty_widgets.update({
+                            ikey: tmp_q,
+                            })
+
+
+            self.data_qts.update({key: qty_widgets})
+            big_layout.add_widget(top_layout)
+            big_layout.add_widget(bottom_layout)
+            main_layout.add_widget(big_layout)
+        #logger.debug(self.data_qts)
+        return(main_layout)
+
+    def num_val_update(self, instance, value):
+        logger.debug(f"value: {value}, key: {instance.kname} updated in GUI")
+        ans=self.inf.send({
+            "section": "speaker",
+            "item": instance.kname,
+            "action": "set",
+            "value": value,
+            })
+        self.tmpans.text=value
+        self.calc_update()
+
 
 class CalcAcousticsApp(App):
 
@@ -100,6 +243,7 @@ class CalcAcousticsApp(App):
         self.speaker_qts["EBP"]["value"].text=str(ans["value"])
 
     def num_val_update(self, instance, value):
+        # TODO remove function when not needed
         logger.debug(f"value: {value}, key: {instance.kname} updated in GUI")
         ans=self.inf.send({
             "section": "speaker",
@@ -128,6 +272,7 @@ class CalcAcousticsApp(App):
 
 
     def open_description(self, event):
+        # TODO remove function when not needed
         for key, val in self.speaker_qts.items():
             if val['desc_btn'] == event:
                 #print (self.speaker_qts[key])
@@ -172,94 +317,6 @@ class CalcAcousticsApp(App):
                 self.root.orientation='horizontal'
 
 
-    def populate_with_dicts(self, widget, dictionary):
-        """populate widget with data from dictionary
-        """
-        # dictionary of dictionaries to hold
-        # data from widget created in loop
-        # ie: {Qts: {unit: <some object>}}
-        data_qts={}
-        # outside loop for get quantity
-        for key, val in dictionary.items():
-            # dict for widgets in quantity
-            qty_widgets={}
-            # BoxLayout for quantity
-            # top: name, short name, value, unit etc.
-            # bottom to hide with help, and block
-            all_layout = BoxLayout(
-                    orientation='vertical',
-                    size=(500, self.HEIGHT),
-                    size_hint = (1, None )
-                    )
-            top_layout = BoxLayout(
-                    orientation="horizontal",
-                    size=(500, all_layout.height),
-                    size_hint = (1, None )
-                    )
-            bottom_layout = BoxLayout(
-                    orientation="horizontal",
-                    size=(500, 0),
-                    size_hint = (1, None )
-                    )
-            qty_widgets.update({
-                    'all_layout': all_layout,
-                    'top_layout': top_layout,
-                    'bottom_layout': bottom_layout
-                    })
-            # internal loop for populate each quantity
-            for ikey, ival in dictionary[key].items():
-                match ikey:
-                    case "desc":
-                        desc_btn = DescButton(btnsize = all_layout.height)
-                        desc_btn.bind(on_press=self.open_description)
-                        top_layout.add_widget(desc_btn)
-                        desc_label = Label(
-                                text=str(ival),
-                                valign = 'top',
-                                padding = [5, 5, 5, 5]
-                                )
-                        bottom_layout.add_widget(desc_label)
-                        desc_label.disabled=True
-                        desc_label.opacity=0
-
-                        qty_widgets.update({
-                            'desc_btn': desc_btn,
-                            'desc_label': desc_label
-                            })
-
-                    case "value":
-                        qty_val = FloatInput(
-                            multiline=False,
-                            text=str(ival),
-                            size_hint = (None, 1),
-                            size = ('80sp', 0)
-                            )
-                        qty_val.kname = key
-                        qty_val.bind(text=self.num_val_update)
-                        top_layout.add_widget(qty_val)
-
-                        qty_widgets.update({
-                            'value': qty_val,
-                            })
-                                
-                    case default:
-                        tmp_q = Label(text=str(ival))
-                        if ikey == 'unit':
-                            tmp_q.size_hint = (None, 0.5)
-                        if ikey == 'short_name':
-                            tmp_q.size_hint = (None, 0.5)
-                        top_layout.add_widget(tmp_q)
-
-                        qty_widgets.update({
-                            ikey: tmp_q,
-                            })
-
-
-            data_qts.update({key: qty_widgets})
-            all_layout.add_widget(top_layout)
-            all_layout.add_widget(bottom_layout)
-            widget.add_widget(all_layout)
-        return(widget)
 
 
     def build(self):
@@ -444,13 +501,19 @@ class CalcAcousticsApp(App):
         self.root.add_widget(speaker_item)
         #Enclosure
         enclosure_item=AccordionItem(title="Enclosure")
+        enclosure_layout=BoxLayout(orientation="vertical")
         ans=self.inf.send({
             "section": "speaker",
             "item": "list_quantities",
             "action": "get",
             "value": None,
             })
-        enclosure_item = self.populate_with_dicts(enclosure_item, ans)
+        #enclosure_layout = (self.populate_with_dicts(enclosure_layout, ans))
+        self.bundle = QuantBundle(ans)
+        widget = self.bundle.populate_with_dicts()
+        enclosure_layout.add_widget(widget)
+        enclosure_layout.add_widget(Label(text="END"))
+        enclosure_item.add_widget(enclosure_layout)
         self.root.add_widget(enclosure_item)
         # open speaker item as default when running program
         speaker_item.collapse=True
