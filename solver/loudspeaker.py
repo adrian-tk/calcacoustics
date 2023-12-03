@@ -1,3 +1,5 @@
+import sys
+sys.path.append('../')
 try:
     from logger import logging
     from logger import logger

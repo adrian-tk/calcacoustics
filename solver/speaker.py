@@ -10,6 +10,10 @@ Examples:
 Contains the following functions:
 - `calEBP(Qes, fs)` returns EPB
 """
+# search path to import all
+
+import sys
+sys.path.append('../')
 
 try:
     from solver.logger import logging
