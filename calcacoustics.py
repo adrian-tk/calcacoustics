@@ -172,6 +172,96 @@ class CalcAcousticsApp(App):
                 self.root.orientation='horizontal'
 
 
+    def populate_with_dicts(self, widget, dictionary):
+        """populate widget with data from dictionary
+        """
+        # dictionary of dictionaries to hold
+        # data from widget created in loop
+        # ie: {Qts: {unit: <some object>}}
+        data_qts={}
+        # outside loop for get quantity
+        for key, val in dictionary.items():
+            # dict for widgets in quantity
+            qty_widgets={}
+            # BoxLayout for quantity
+            # top: name, short name, value, unit etc.
+            # bottom to hide with help, and block
+            all_layout = BoxLayout(
+                    orientation='vertical',
+                    size=(500, self.HEIGHT),
+                    size_hint = (1, None )
+                    )
+            top_layout = BoxLayout(
+                    orientation="horizontal",
+                    size=(500, all_layout.height),
+                    size_hint = (1, None )
+                    )
+            bottom_layout = BoxLayout(
+                    orientation="horizontal",
+                    size=(500, 0),
+                    size_hint = (1, None )
+                    )
+            qty_widgets.update({
+                    'all_layout': all_layout,
+                    'top_layout': top_layout,
+                    'bottom_layout': bottom_layout
+                    })
+            # internal loop for populate each quantity
+            for ikey, ival in dictionary[key].items():
+                match ikey:
+                    case "desc":
+                        desc_btn = DescButton(btnsize = all_layout.height)
+                        desc_btn.bind(on_press=self.open_description)
+                        top_layout.add_widget(desc_btn)
+                        desc_label = Label(
+                                text=str(ival),
+                                valign = 'top',
+                                padding = [5, 5, 5, 5]
+                                )
+                        bottom_layout.add_widget(desc_label)
+                        desc_label.disabled=True
+                        desc_label.opacity=0
+
+                        qty_widgets.update({
+                            'desc_btn': desc_btn,
+                            'desc_label': desc_label
+                            })
+
+                    case "value":
+                        qty_val = FloatInput(
+                            multiline=False,
+                            text=str(ival),
+                            size_hint = (None, 1),
+                            size = ('80sp', 0)
+                            )
+                        qty_val.kname = key
+                        qty_val.bind(text=self.num_val_update)
+                        top_layout.add_widget(qty_val)
+
+                        qty_widgets.update({
+                            'value': qty_val,
+                            })
+                                
+                    case default:
+                        tmp_q = Label(text=str(ival))
+                        if ikey == 'unit':
+                            tmp_q.size_hint = (None, 0.5)
+                        if ikey == 'short_name':
+                            tmp_q.size_hint = (None, 0.5)
+                        top_layout.add_widget(tmp_q)
+
+                        qty_widgets.update({
+                            ikey: tmp_q,
+                            })
+
+
+            data_qts.update({key: qty_widgets})
+            all_layout.add_widget(top_layout)
+            all_layout.add_widget(bottom_layout)
+            widget.add_widget(all_layout)
+        return(widget)
+
+
     def build(self):
         """ buld views of GUI
         accrodion type
@@ -354,10 +444,16 @@ class CalcAcousticsApp(App):
         self.root.add_widget(speaker_item)
         #Enclosure
         enclosure_item=AccordionItem(title="Enclosure")
-        enclosure_item.add_widget(Label(text="Enclosure data and calculation"))
+        ans=self.inf.send({
+            "section": "speaker",
+            "item": "list_quantities",
+            "action": "get",
+            "value": None,
+            })
+        enclosure_item = self.populate_with_dicts(enclosure_item, ans)
         self.root.add_widget(enclosure_item)
         # open speaker item as default when running program
-        speaker_item.collapse=False
+        speaker_item.collapse=True
         self.windows_size()
         return self.root
 

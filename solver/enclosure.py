@@ -1,6 +1,14 @@
 """Provide calculations and values for enclosure.
 
 This module allows the user to work with enclosure.
+    ____
+   /   /|   x = width of enclosure
+  +---+ |   y = depth of enclosure
+  | o | |   z = height of enclosure 
+ z| O | +   v = volume from box dimensions
+  |   |/y
+  +---+
+    x
 
 Examples:
     >>> import enclosure
@@ -29,10 +37,13 @@ except Exception as err:
 import common.quantity as q
 
 class Quant (q.quantity):
-    # atrr for locking of values
+    # atrribute for locking of values
     # locked values will not be calculated
     locked = False
-    pass
+    def dictionary(self):
+        ans = super().dictionary()
+        ans.update({'locked': self.locked})
+        return(ans)
 
 class Enclosure:
 
@@ -46,72 +57,93 @@ class Enclosure:
                           "with volume adjusted acc. to speaker "
                           "volume, BR port, stuff, etc.")
 
-        self.we=Quant(name='external width of enclosure',
-                      value=0.0,
-                      unit="m",
-                      desc="external width of enclosure")
-        self.he=Quant(name='external height of enclosure',
-                      value=0.0,
-                      unit="m",
-                      desc="external height of enclosure")
-        self.de=Quant(name='external depth of enclosure',
-                      value=0.0,
-                      unit="m",
-                      desc="external depth of enclosure")
+        self.ext_dims = {'x': Quant(
+                            name='ext. width',
+                            value=0.0,
+                            unit="m",
+                            desc="external width of enclosure"),
+                        'y': Quant(
+                            name='ext depth',
+                            value=0.0,
+                            unit="m",
+                            desc="external depth of enclosure"),
+                        'z': Quant(
+                            name='ext. height',
+                            value=0.0,
+                            unit="m",
+                            desc="external height of enclosure"),
+                        'v': Quant(
+                            name='ext. volume',
+                            value=0.0,
+                            unit="m3",
+                            desc="external volume of enclosure "
+                                "calculated from box dimensions")
+                        }
+        self.int_dims = {'x': Quant(
+                            name='int. width',
+                            value=0.0,
+                            unit="m",
+                            desc="internal width of enclosure"),
+                        'y': Quant(
+                            name='int depth',
+                            value=0.0,
+                            unit="m",
+                            desc="internal depth of enclosure"),
+                        'z': Quant(
+                            name='int. height',
+                            value=0.0,
+                            unit="m",
+                            desc="internal height of enclosure"),
+                        'v': Quant(
+                            name='int. volume',
+                            value=0.0,
+                            unit="m3",
+                            desc=("internal volume of enclosure" 
+                                  "calculated from box dimensions"))
+                        }
         self.thick=Quant(name='thickness of board',
                       value=0.0,
                       unit="m",
                       desc="thickness of matierial for box produce")
-        self.wi=Quant(name='internal width of enclosure',
-                      value=0.0,
-                      unit="m",
-                      desc="internal width of enclosure")
-        self.hi=Quant(name='internal height of enclosure',
-                      value=0.0,
-                      unit="m",
-                      desc="internal height of enclosure")
-        self.di=Quant(name='internal depth of enclosure',
-                      value=0.0,
-                      unit="m",
-                      desc="internal depth of enclosure")
-        self.v_int=Quant(name='raw internal volume of enclosure',
-                      value=0.0,
-                      unit="l",
-                      desc="volume calculated from internal dimensions")
+
         self.stuffed=Quant(name='percentage of stufffed',
                       value=0.0,
                       unit="%",
                       desc="how much material is stuffed into enclosure "
                            "0 is none, 100 is full")
-    def int_dim(self):
+    def calc_int_dim(self):
         """calculate internal box linear dimension
 
         internal value is external - 2 * thickness
         be aware, that ext_dim and thick shall has the same unit.
         """
 
-        self.wi.setval(
-                (self.we.getval('m')-2*self.thick.getval('m')),
-                'm'
-                )
-        self.di.setval(
-                (self.de.getval('m')-2*self.thick.getval('m')),
-                'm'
-                )
-        self.hi.setval(
-                (self.he.getval('m')-2*self.thick.getval('m')),
-                'm'
-                )
-
-
-    def int_box_vol(self):
-        """calculate internal volume of empty box"""
-        self.int_dim()
-        self.v_int.setval(self.wi.getval("m")*
-                          self.hi.getval("m")*
-                          self.di.getval("m")*1000, "l")
+        for i in ('x', 'y', 'z'):
+            self.int_dims[i].setval(
+                    self.ext_dims[i].getval('m')-2*self.thick.getval('m'),
+                    'm')
+            self.int_dims['v'].setval(
+                    self.int_dims['x'].getval('m')*
+                    self.int_dims['y'].getval('m')*
+                    self.int_dims['z'].getval('m')*
+                    1000,        # m3 to liters
+                    'l'
+                    )
         logger.debug(f"volume from internal dimension: "
-                      f"{self.v_int.getval('l'):.5} l")
+                      f"{self.int_dims['v'].getval('l'):.5} l")
+
+    def dictionary(self, scope: str) -> dict:
+        ans = []
+        for key, val in self.ext_dims.items():
+            ans.append(val.dictionary())
+        for key, val in self.int_dims.items():
+            ans.append(val.dictionary())
+            ans.append(self.thick.dictionary())
+            ans.append(self.Vs.dictionary())
+
+        return(ans)
+
+                    
     """
     def stuff(self):
         st_wage=0.15        #whent 100% volume is increased 15%
@@ -125,9 +157,12 @@ if __name__=="__main__":
     logger = logging.getLogger("fast_test")
     logger.setLevel(logging.DEBUG)
     box=Enclosure()
-    box.we.setval(300, "mm")
-    box.he.setval(1200, "mm")
-    box.de.setval(180, "mm")
     box.thick.setval(16, "mm")
-    box.int_box_vol()
-    print(box.v_int.getval('l'))
+    box.ext_dims['x'].setval(30, "cm")
+    box.ext_dims['y'].setval(15, "cm")
+    box.ext_dims['z'].setval(120, "cm")
+    box.calc_int_dim()
+    print(box.dictionary("all"))
+
+    #box.int_box_vol()
+    #print(box.v_int.getval('l'))
