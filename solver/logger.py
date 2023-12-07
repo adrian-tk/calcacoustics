@@ -31,6 +31,8 @@ logger = logging.getLogger('calac')
 # log for communication, a lot of data
 # all child logger will have this same level
 logcom = logging.getLogger('calac.com')
+# logger for kivy, might be a lot
+loggui = logging.getLogger('calac.gui')
 
 def setlog(verbose='standard'):
     match verbose:
