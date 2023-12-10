@@ -42,19 +42,25 @@ for logg in loggers:
 
 logger.debug(f"platform is {platform}")
 
+
 class QuantBundle():
     """class for creating and working with multiple data widgets
     
-    object of this class shall be self. to dispatch (ie. clicking) working
+    object of this class shall be self. in def build()
+    to dispatch (ie. clicking) working
     """
-    def __init__(self, dictionary):
+    def __init__(self, dictionary, name:str=""):
         self.HEIGHT = sp(30)
         self.dictionary = dictionary
+        self.bundle_name = name
         # dictionary of dictionaries to hold
         # data from widget created in loop
         # ie: {Qts: {unit: <some object>}}
         self.data_qts={}
         self.inf=interface.Interface()
+        logger.debug(
+                f'Quant object with name: "{self.bundle_name}" created'
+                )
 
     def open_description(self, event):
         for key, val in self.data_qts.items():
@@ -185,13 +191,22 @@ class QuantBundle():
             self.main_layout.height=self.main_layout.height+self.HEIGHT
             loggui.debug(f"main_layout size: {self.main_layout.size}")
             loggui.debug(f"main_layout size_hint: {self.main_layout.size_hint}")
-            loggui.debug(f"main_layout minimum_size: {self.main_layout.minimum_size}")
         #logger.debug(self.data_qts)
-        logger.debug(f"main laout is {self.main_layout.size}")
+        logger.debug(f"main layout is {self.main_layout.size}")
         #with main_layout.canvas:
         #    Color(1, 0, 0)
         #    Rectangle(pos=main_layout.pos, size=main_layout.size)
         return(self.main_layout)
+
+    def calc_update(self):
+        logger.debug("update calculation")
+        ans=self.inf.send({
+            "section": "speaker",
+            "item": 'EBP',
+            "action": "calculate",
+            "value": "",
+            })
+       # self.speaker_qts["EBP"]["value"].text=str(ans["value"])
 
     def num_val_update(self, instance, value):
         logger.debug(f"value: {value}, key: {instance.kname} updated in GUI")
@@ -537,7 +552,7 @@ class CalcAcousticsApp(App):
         #        size = (0, '80sp')
         #        )
         #enclosure_layout.add_widget(start_label)
-        self.bundle = QuantBundle(ans)
+        self.bundle = QuantBundle(ans, "enclosure")
         widget = self.bundle.populate_with_dicts()
         widget.size_hint = (1, None )
         #widget.size = (0, '300sp' )
