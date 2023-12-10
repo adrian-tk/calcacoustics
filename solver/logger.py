@@ -3,6 +3,10 @@
 format loggers, turn on or off some modules ie. kivy
 set levels and other stuff to ensure consistent logging
 for all app
+
+Kivy logger makes a litlle mess, to turn it of or on
+set debug or error at the bottom of this script, and run
+script twice
 """
 
 import logging
@@ -40,6 +44,7 @@ def setlog(verbose='standard'):
             logging.basicConfig(level=logging.INFO)
             logger.setLevel(logging.DEBUG)
             logcom.setLevel(logging.ERROR)
+            loggui.setLevel(logging.ERROR)
             try:
                 Logger.setLevel(LOG_LEVELS["warning"])
             except: pass
@@ -47,6 +52,7 @@ def setlog(verbose='standard'):
             logging.basicConfig(level=logging.CRITICAL)
             logger.setLevel(logging.CRITICAL)
             logcom.setLevel(logging.CRITICAL)
+            loggui.setLevel(logging.CRITICAL)
             try:
                 Logger.setLevel(LOG_LEVELS["critical"])
             except: pass
@@ -54,6 +60,7 @@ def setlog(verbose='standard'):
             logging.basicConfig(level=logging.INFO)
             logger.setLevel(logging.INFO)
             logcom.setLevel(logging.CRITICAL)
+            loggui.setLevel(logging.CRITICAL)
             try:
                 Logger.setLevel(LOG_LEVELS["critical"])
             except: pass
@@ -61,6 +68,7 @@ def setlog(verbose='standard'):
             logging.basicConfig(level=logging.DEBUG)
             logger.setLevel(logging.DEBUG)
             logcom.setLevel(logging.DEBUG)
+            loggui.setLevel(logging.DEBUG)
             try:
                 Logger.setLevel(LOG_LEVELS["debug"])
             except: pass
@@ -69,6 +77,6 @@ if __name__ == '__main__':
     # set config level of kivy
     # run twice
     from kivy.config import Config
-    #Config.set('kivy', 'log_level', 'error')
-    Config.set('kivy', 'log_level', 'debug')
+    Config.set('kivy', 'log_level', 'error')
+    #Config.set('kivy', 'log_level', 'debug')
     Config.write()
