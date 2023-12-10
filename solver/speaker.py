@@ -30,7 +30,8 @@ except Exception as err:
 import os
 import configparser
 #from quantity import quantity 
-from common.quantity import quantity 
+#from common.quantity import quantity 
+from solver.quant import Quant
 
 def calEBP(Qes: float, fs: float) -> float:
     """Calculate EBP (Efficiency Bandwidth Product)
@@ -72,49 +73,67 @@ class Speaker:
         self.description = description
         self.name=self.producer + '_' + self.model
         self.par={
-            'r_pow': quantity(name='rated power',
-                        value=0.0,
-                        unit='W',
-                        desc="A speaker's power rating details "
-                            "the amount of power that it can safely handle."), 
-            'max_pow': quantity(name='maximum power',
-                         value=0.0,
-                         unit='W',
-                         desc="Maximum power is the power that the speaker "
-                           "can handle for short periods of time without "
-                           "being damaged."),
-            'z': quantity(name='nominal impedance',
-                         value=0.0,
-                         unit='Ohm',
-                         desc="nominal impedance is an estimate "
-                             "of the minimum impedance for typical "
-                             "audio ranges usually 4, 8, or 16 Ohms"),
-            'Vas': quantity(name='equivalent volume',
-                         value=0.0,
-                         unit='l',
-                         desc="The Vas measurement in litres "
-                         "is the size of the ‘imaginary’ box "
-                         "which has exactly the same restoring "
-                         "force as the suspension of the driver."),
-            'u_fr': quantity(
+            'r_pow': Quant(
+                name='rated power',
+                value=0.0,
+                unit='W',
+                desc=("A speaker's power rating details "
+                    "the amount of power that it can safely handle."), 
+                calculate=False
+                ),
+            'max_pow': Quant(
+                name='maximum power',
+                value=0.0,
+                unit='W',
+                desc="Maximum power is the power that the speaker "
+                     "can handle for short periods of time without "
+                     "being damaged.",
+                calculate=False,
+                ),
+            'z': Quant(
+                name='nominal impedance',
+                value=0.0,
+                unit='Ohm',
+                desc="nominal impedance is an estimate "
+                     "of the minimum impedance for typical "
+                     "audio ranges usually 4, 8, or 16 Ohms",
+                calculate = False
+                ),
+            'Vas': Quant(
+                name='equivalent volume',
+                value=0.0,
+                unit='l',
+                desc="The Vas measurement in litres "
+                     "is the size of the ‘imaginary’ box "
+                     "which has exactly the same restoring "
+                     "force as the suspension of the driver.",
+                calculate=False,
+                ),
+            'u_fr': Quant(
                 name = 'Upper frequency response',
                 value = 0.0,
                 unit = "Hz",
                 desc = 'Upper frequecy of the driver in which'
-                    'it shall work'),
-            'SPL': quantity(
+                       'it shall work',
+                calculate = False
+                ),
+            'SPL': Quant(
                 name = 'Sound Pressure Level',
                 value = 0.0,
                 unit = "dB",
                 desc = 'Mean sound pressure level measured'
-                    'at power 1 W and 1m from speaker'),
-            'fs': quantity(
+                    'at power 1 W and 1m from speaker',
+                calculate = False
+                ),
+            'fs': Quant(
                 name = 'Resonance frequency',
                 value = 0.0,
                 unit = "Hz",
                 desc = 'Mechanical resonance frequency'
-                    'of freely mounted speaker'),
-            'Qts': quantity(
+                    'of freely mounted speaker',
+                calculate = False,
+                ),
+            'Qts': Quant(
                 name = 'Total Q factor',
                 value = 0.0,
                 unit = "Unitless",
@@ -122,18 +141,20 @@ class Speaker:
                     'lower Q means more control'
                     'Qts<0.4 is usually for drivers for ported'
                     'enclosure, 0.4<Qts>0.7 for closed, and Qts>0.7'
-                    'for free-air or infite baffle type'
+                    'for free-air or infite baffle type',
+                calculate = False,
                     ),
-            'Qes': quantity(
+            'Qes': Quant(
                 name = 'Electrical Q factor',
                 value = 0.0,
                 unit = "Unitless",
                 desc = 'is the amount of control coming from'
                     'the electrical components of a speaker'
                     '(the voice coil and magnet) which contribute'
-                    'to the suspension system'
+                    'to the suspension system',
+                calculate = False,
                     ),
-            'EBP': quantity(
+            'EBP': Quant(
                 name = 'Efficiency Bandwidth Product',
                 value = 0.0,
                 unit = "Unitless",
@@ -141,7 +162,8 @@ class Speaker:
                     'and bandwidth of a driver.'
                     'EBP < 50 - use only for a sealed box'
                     'EBP 50 - 100 - can be used in either'
-                    'EBP > 100 - vented box only'
+                    'EBP > 100 - vented box only',
+                calculate = True,
                     ),
             }
 
@@ -151,7 +173,9 @@ class Speaker:
     Qms=3.4     # Mechanical Q factor
     # TODO add other
 
-
+    def recalculate(self):
+        if self.par['EBP'].calculate:
+            self.setEBP()
 
     def setEBP(self):
         """set EBP (Efficiency Bandwidth Product) in speaker class
@@ -266,3 +290,7 @@ if __name__=='__main__':
     print (f"EBP = {spkr.par['EBP'].value}")
     print (spkr.setEBP())
     print (f"EBP = {spkr.par['EBP'].value}")
+    spkr.par['fs'].value=30.0
+    spkr.par['Qes'].value=0.32
+    spkr.recalculate()
+    print (f"EBP recalculated = {spkr.par['EBP'].value}")

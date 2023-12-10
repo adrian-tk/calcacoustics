@@ -35,16 +35,25 @@ except Exception as err:
     print("Maybe You shall be in env?")
 
 import common.quantity as q
+"""
+TODO import it from somwhere:
 
 class Quant (q.quantity):
-    # atrribute for locking of values
-    # locked values will not be calculated
-    locked = False
+    # atrribute for differentiate between
+    # input values and calculated values
+    # false values will not be calculated
+    calculate = False
+    # visibility of button to change calculate state
+    # some values might be as well input, or 
+    # calculate, user might need to decide
+    calc_vis = False
+
     def dictionary(self):
         ans = super().dictionary()
-        ans.update({'locked': self.locked})
+        ans.update({'calculate': self.calculate})
+        ans.update({'calc_vis': self.calc_vis})
         return(ans)
-
+"""
 class Enclosure:
 
     def __init__(self):
