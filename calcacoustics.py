@@ -6,6 +6,7 @@ try:
     from solver.logger import logging 
     from solver.logger import logger
     from solver.logger import logcom
+    from solver.logger import loggui
     logger.debug("imported loggers")
     from solver.logger import setlog
     setlog('debug')
@@ -28,8 +29,6 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.filechooser import FileChooserListView
 from kivy.metrics import sp
-#from kivy.uix.widget import Widget
-
 
 import interface
 from gui_kivy.kivy_common import FloatInput
@@ -46,15 +45,16 @@ logger.debug(f"platform is {platform}")
 class QuantBundle():
     """class for creating and working with multiple data widgets
     
-    object of this class shall be self. to dispatch working
+    object of this class shall be self. to dispatch (ie. clicking) working
     """
     def __init__(self, dictionary):
-        self.HEIGHT = '30sp'
+        self.HEIGHT = sp(30)
         self.dictionary = dictionary
         # dictionary of dictionaries to hold
         # data from widget created in loop
         # ie: {Qts: {unit: <some object>}}
         self.data_qts={}
+        self.inf=interface.Interface()
 
     def open_description(self, event):
         for key, val in self.data_qts.items():
@@ -70,11 +70,13 @@ class QuantBundle():
                     a['desc_label'].size = a['bottom_layout'].size
                     a['desc_label'].text_size = a['desc_label'].size
                     #print(a['desc_label'].text_size)
+                    self.main_layout.size[1] += sp(70)
                 else:
                     a['bottom_layout'].size=(500,0 )
                     a['big_layout'].size=(500, self.HEIGHT)
                     a['desc_label'].opacity=0
                     a['desc_label'].disabled=True
+                    self.main_layout.size[1] -= sp(70)
 
     def populate_with_dicts(self):
         """populate widget with data from dictionary
@@ -89,7 +91,11 @@ class QuantBundle():
             ...
         """
         # main layout
-        main_layout=BoxLayout(orientation="vertical")
+        self.main_layout=BoxLayout(
+                orientation="vertical",
+                size=(500, 0),
+                size_hint = (1, None),
+                )
         # outside loop for get quantity
         for key, val in self.dictionary.items():
             # dict for widgets in quantity
@@ -102,16 +108,22 @@ class QuantBundle():
                     size=(500, self.HEIGHT),
                     size_hint = (1, None )
                     )
+            loggui.debug(f"big_layout size: {big_layout.size}")
+            loggui.debug(f"big_layout size_hint: {big_layout.size_hint}")
             top_layout = BoxLayout(
                     orientation="horizontal",
                     size=(500, big_layout.height),
                     size_hint = (1, None )
                     )
+            loggui.debug(f"top_layout size: {top_layout.size}")
+            loggui.debug(f"top_layout size_hint: {top_layout.size_hint}")
             bottom_layout = BoxLayout(
                     orientation="horizontal",
                     size=(500, 0),
                     size_hint = (1, None )
                     )
+            loggui.debug(f"bottom_layout size: {bottom_layout.size}")
+            loggui.debug(f"bottom_layout size_hint: {bottom_layout.size_hint}")
             qty_widgets.update({
                     'big_layout': big_layout,
                     'top_layout': top_layout,
@@ -169,9 +181,17 @@ class QuantBundle():
             self.data_qts.update({key: qty_widgets})
             big_layout.add_widget(top_layout)
             big_layout.add_widget(bottom_layout)
-            main_layout.add_widget(big_layout)
+            self.main_layout.add_widget(big_layout)
+            self.main_layout.height=self.main_layout.height+self.HEIGHT
+            loggui.debug(f"main_layout size: {self.main_layout.size}")
+            loggui.debug(f"main_layout size_hint: {self.main_layout.size_hint}")
+            loggui.debug(f"main_layout minimum_size: {self.main_layout.minimum_size}")
         #logger.debug(self.data_qts)
-        return(main_layout)
+        logger.debug(f"main laout is {self.main_layout.size}")
+        #with main_layout.canvas:
+        #    Color(1, 0, 0)
+        #    Rectangle(pos=main_layout.pos, size=main_layout.size)
+        return(self.main_layout)
 
     def num_val_update(self, instance, value):
         logger.debug(f"value: {value}, key: {instance.kname} updated in GUI")
@@ -181,7 +201,7 @@ class QuantBundle():
             "action": "set",
             "value": value,
             })
-        self.tmpans.text=value
+        #self.tmpans.text=value
         self.calc_update()
 
 
@@ -499,7 +519,9 @@ class CalcAcousticsApp(App):
         speaker_layout.add_widget(self.tmpans)
         speaker_item.add_widget(speaker_layout)
         self.root.add_widget(speaker_item)
+        #
         #Enclosure
+        #
         enclosure_item=AccordionItem(title="Enclosure")
         enclosure_layout=BoxLayout(orientation="vertical")
         ans=self.inf.send({
@@ -509,8 +531,16 @@ class CalcAcousticsApp(App):
             "value": None,
             })
         #enclosure_layout = (self.populate_with_dicts(enclosure_layout, ans))
+        #start_label = Label(
+        #        text = "START",
+        #        size_hint = (1, None),
+        #        size = (0, '80sp')
+        #        )
+        #enclosure_layout.add_widget(start_label)
         self.bundle = QuantBundle(ans)
         widget = self.bundle.populate_with_dicts()
+        widget.size_hint = (1, None )
+        #widget.size = (0, '300sp' )
         enclosure_layout.add_widget(widget)
         enclosure_layout.add_widget(Label(text="END"))
         enclosure_item.add_widget(enclosure_layout)
