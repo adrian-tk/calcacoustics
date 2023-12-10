@@ -1,7 +1,12 @@
 import logging
 logger = logging.getLogger(__name__)
 
-from common import convert
+# different places to import from
+try:
+    from common import convert
+except:
+    # impoort from local directory
+    import convert
 
 class quantity:
     def __init__(self,
@@ -32,7 +37,7 @@ class quantity:
         as parameter tuple of values do remove from dic
         return dictionary
         """
-
+        """
         dic={
              "name": self.name,
              "short_name": self.short_name,
@@ -40,18 +45,16 @@ class quantity:
              "unit": self.unit,
              "desc": self.desc,
              }
+             """
+        dic = self.__dict__
         for key in to_rem:
             del dic[key]
         return dic
-
-
 
     def __str__(self):
         return (f"{self.name} ({self.short_name})is: "
                 f"{self.value} {self.unit} "
                 f"\n{self.desc}")
-
-
     
 if __name__=="__main__":
     logger.setLevel(logging.DEBUG)
