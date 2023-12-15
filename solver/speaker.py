@@ -249,11 +249,13 @@ class Speaker:
         #FILETOREAD = 'speakers/Visaton_W200SC8OHM.ini'
         rspeak = configparser.ConfigParser()
         rspeak.read(file)
-        logger.debug(f"readed file: {file}")
+        logger.debug(f"start reading file: {file}")
         logger.debug(f"sections in file: {rspeak.sections()}")
         for section in rspeak.sections():
             if section == "general":
+                logger.debug("general section readed")
                 self.producer = rspeak[section]['producer']
+                print(self.producer)
                 self.model = rspeak[section]['model']
                 self.description = rspeak[section]['description']
             else:
