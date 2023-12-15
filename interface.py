@@ -32,7 +32,7 @@ try:
     # set this logger as a child of main logger
     logger = logger.getChild(__name__)
     logcom = logcom.getChild(__name__)
-    logger.debug("imported loggers")
+    logger.debug("imported loggers in interface")
 except Exception as err:
     print("Can't import loggers")
     print(err)

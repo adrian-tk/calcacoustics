@@ -9,8 +9,8 @@ try:
     from solver.logger import loggui
     logger.debug("imported loggers")
     from solver.logger import setlog
-    setlog('debug')
-    #setlog('all')
+    #setlog('debug')
+    setlog('all')
 except Exception as err:
     print("Can't import loggers")
     print(err)
@@ -42,6 +42,65 @@ for logg in loggers:
 
 logger.debug(f"platform is {platform}")
 
+class Comm():
+    """class to communicate with interface"""
+    # create interface
+    def __init__(self, name:str = "default"):
+        self.name = name
+        self.inf=interface.Interface()
+
+    def get(self, item: str) -> str:
+        ans=self.inf.send({
+            "section": self.name,
+            "item": item,
+            "action": "get",
+            "value": "",
+            })
+        logger.debug(
+                f"comm set {self.name}: {item} and get {ans['value']}"
+                )
+        logcom.debug(f"get: {ans}")
+        return(ans["value"])
+
+    def set(self, item: str, val: str) -> bool:
+        query = {
+            "section": self.name,
+            "item": item,
+            "action": "set",
+            "value": val
+            }
+        ans=self.inf.send(query)
+        logger.debug(f"setting {self.name}: {item} with {val} updated")
+        logcom.debug(f"send to solver: {query}")
+        logcom.debug(f"get from solver: {ans}")
+        # for checking correction if needed
+        return(True)
+
+    def cal(self, item: str) -> str:
+        query = {
+            "section": self.name,
+            "item": item,
+            "action": "calculate",
+            "value": ""
+            }
+        ans=self.inf.send(query)
+        logger.debug(f"calculate {self.name}: {item}")
+        logcom.debug(f"send to solver: {query}")
+        logcom.debug(f"get from solver: {ans}")
+        return(ans["value"])
+
+    def populate(self):
+        """returns data to populate GUI"""
+
+        ans=self.inf.send({
+            "section": self.name,
+            "item": "list_quantities",
+            "action": "get",
+            "value": None,
+            })
+        logger.debug(f"dictionary for populate {self.name} queried")
+        logcom.debug(f"populate with: {ans}")
+        return(ans)
 
 class QuantBundle():
     """class for creating and working with multiple data widgets
@@ -49,15 +108,19 @@ class QuantBundle():
     object of this class shall be self. in def build()
     to dispatch (ie. clicking) working
     """
-    def __init__(self, dictionary, name:str=""):
+    def __init__(self, name:str="", comm:Comm=None):
         self.HEIGHT = sp(30)
-        self.dictionary = dictionary
         self.bundle_name = name
+        if comm is None:
+            self.comm = Comm(self.bundle_name)
+        else:
+            self.comm = comm
+        self.dictionary = self.comm.populate()
         # dictionary of dictionaries to hold
         # data from widget created in loop
         # ie: {Qts: {unit: <some object>}}
         self.data_qts={}
-        self.inf=interface.Interface()
+        #self.inf=interface.Interface()
         logger.debug(
                 f'Quant object with name: "{self.bundle_name}" created'
                 )
@@ -192,7 +255,9 @@ class QuantBundle():
             loggui.debug(f"main_layout size: {self.main_layout.size}")
             loggui.debug(f"main_layout size_hint: {self.main_layout.size_hint}")
         #logger.debug(self.data_qts)
-        logger.debug(f"main layout is {self.main_layout.size}")
+        loggui.debug(
+                f"main layout otuside loops is {self.main_layout.size}"
+                )
         #with main_layout.canvas:
         #    Color(1, 0, 0)
         #    Rectangle(pos=main_layout.pos, size=main_layout.size)
@@ -200,23 +265,12 @@ class QuantBundle():
 
     def calc_update(self):
         logger.debug("update calculation")
-        ans=self.inf.send({
-            "section": "speaker",
-            "item": 'EBP',
-            "action": "calculate",
-            "value": "",
-            })
-       # self.speaker_qts["EBP"]["value"].text=str(ans["value"])
+        ans = self.comm.cal("EBP")
+        self.data_qts["EBP"]["value"].text=str(ans)
 
     def num_val_update(self, instance, value):
         logger.debug(f"value: {value}, key: {instance.kname} updated in GUI")
-        ans=self.inf.send({
-            "section": "speaker",
-            "item": instance.kname,
-            "action": "set",
-            "value": value,
-            })
-        #self.tmpans.text=value
+        ans = self.comm.set(instance.kname, value)
         self.calc_update()
 
 
@@ -248,34 +302,47 @@ class CalcAcousticsApp(App):
     def chosen_file(self, obj, val):
         logger.debug(f"file chosen: {val}")
         self.open_file_dialog(None)
+        """
         ans=self.inf.send({
             "section": "speaker",
             "item": 'speaker.ini',
             "action": "set",
             "value": val
             })
+            """
+        ans=self.speaker_bundle.comm.set("speaker.ini", val)
         # wait for answer and update
-        if ans['action'] == 'answer':
+        if ans:
             self.update_all_gui()
         else:
             debug.error("can't update data from ini")
 
     def update_all_gui(self):
         print("update GUI values")
-        self.speaker_producer.text = (self.speaker_get('producer'))
-        self.speaker_model.text = (self.speaker_get('model'))
-        for key, val in self.speaker_qts.items():
+        self.speaker_producer.text = (self.comm.get('producer'))
+        self.speaker_model.text = (self.comm.get('model'))
+        #for key, val in self.speaker_qts.items():
+        # TODO move to QuantBundle?
+        for key, val in self.speaker_bundle.data_qts.items():
             print(key)
-            val['value'].text = self.speaker_get(key)
+            print(val['value'].text)
+            print(f"key: {self.speaker_bundle.comm.get(key)}")
+            val['value'].text = self.speaker_bundle.comm.get(key)
+            #val['value'].text = self.speaker_get(key)
+            val['value'].text = self.speaker_bundle.comm.get(key)
 
     def calc_update(self):
+        '''
         ans=self.inf.send({
             "section": "speaker",
             "item": 'EBP',
             "action": "calculate",
             "value": "",
             })
-        self.speaker_qts["EBP"]["value"].text=str(ans["value"])
+            '''
+        ans = self.speaker_bundle.comm.cal("EBP")
+        #self.speaker_qts["EBP"]["value"].text=str(ans["value"])
+        self.speaker_bundle.data_qts["EBP"]["value"].text=str(ans["value"])
 
     def num_val_update(self, instance, value):
         # TODO remove function when not needed
@@ -352,8 +419,6 @@ class CalcAcousticsApp(App):
                 self.root.orientation='horizontal'
 
 
-
-
     def build(self):
         """ buld views of GUI
         accrodion type
@@ -363,6 +428,7 @@ class CalcAcousticsApp(App):
         self.root=Accordion()
         if platform == 'android':
             self.root.orientation='veritcal'
+        self.comm = Comm("speaker")
         self.inf=interface.Interface()
         # Speaker part
         # speaker data, mostly from poducer
@@ -372,6 +438,8 @@ class CalcAcousticsApp(App):
         speaker_item=AccordionItem(title="Speaker")
         speaker_layout=BoxLayout(orientation="vertical")
         # Ask iterface about list of parameters
+        
+        """
         ans=self.inf.send({
             "section": "speaker",
             "item": "producer",
@@ -379,8 +447,10 @@ class CalcAcousticsApp(App):
             "value": None,
             })
         logcom.debug(f"answer from calc: {ans}")
-        producer = ans['value']
+            """
+        producer = self.comm.get("producer")
 
+        """
         ans=self.inf.send({
             "section": "speaker",
             "item": "model",
@@ -388,7 +458,8 @@ class CalcAcousticsApp(App):
             "value": None,
             })
         logcom.debug(f"answer from calc: {ans}")
-        model = ans['value']
+        """
+        model = self.comm.get("model")
 
 
         self.name_all = BoxLayout(
@@ -439,97 +510,9 @@ class CalcAcousticsApp(App):
         self.name_all.add_widget(name_top)
         self.name_all.add_widget(self.name_bottom)
         speaker_layout.add_widget(self.name_all)
-        # ask about all quantities for speaker
-        ans=self.inf.send({
-            "section": "speaker",
-            "item": "list_quantities",
-            "action": "get",
-            "value": None,
-            })
-        # dictionary of dictionaries to hold
-        # data from widget created in loop
-        # ie: {Qts: {unit: <some object>}}
-        self.speaker_qts={}
-        # outside loop for get quantity
-        for key, val in ans.items():
-            # dict for widgets in quantity
-            qty_widgets={}
-            # BoxLayout for quantity
-            # top: name, short name, value, unit etc.
-            # bottom to hide with help, and block
-            all_layout = BoxLayout(
-                    orientation='vertical',
-                    size=(500, self.HEIGHT),
-                    size_hint = (1, None )
-                    )
-            top_layout = BoxLayout(
-                    orientation="horizontal",
-                    size=(500, all_layout.height),
-                    size_hint = (1, None )
-                    )
-            bottom_layout = BoxLayout(
-                    orientation="horizontal",
-                    size=(500, 0),
-                    size_hint = (1, None )
-                    )
-            qty_widgets.update({
-                    'all_layout': all_layout,
-                    'top_layout': top_layout,
-                    'bottom_layout': bottom_layout
-                    })
-            # internal loop for populate each quantity
-            for ikey, ival in ans[key].items():
-                match ikey:
-                    case "desc":
-                        desc_btn = DescButton(btnsize = all_layout.height)
-                        desc_btn.bind(on_press=self.open_description)
-                        top_layout.add_widget(desc_btn)
-                        desc_label = Label(
-                                text=str(ival),
-                                valign = 'top',
-                                padding = [5, 5, 5, 5]
-                                )
-                        bottom_layout.add_widget(desc_label)
-                        desc_label.disabled=True
-                        desc_label.opacity=0
-
-                        qty_widgets.update({
-                            'desc_btn': desc_btn,
-                            'desc_label': desc_label
-                            })
-
-                    case "value":
-                        qty_val = FloatInput(
-                            multiline=False,
-                            text=str(ival),
-                            size_hint = (None, 1),
-                            size = ('80sp', 0)
-                            )
-                        qty_val.kname = key
-                        qty_val.bind(text=self.num_val_update)
-                        top_layout.add_widget(qty_val)
-
-                        qty_widgets.update({
-                            'value': qty_val,
-                            })
-                                
-                    case default:
-                        tmp_q = Label(text=str(ival))
-                        if ikey == 'unit':
-                            tmp_q.size_hint = (None, 0.5)
-                        if ikey == 'short_name':
-                            tmp_q.size_hint = (None, 0.5)
-                        top_layout.add_widget(tmp_q)
-
-                        qty_widgets.update({
-                            ikey: tmp_q,
-                            })
-
-
-            self.speaker_qts.update({key: qty_widgets})
-            all_layout.add_widget(top_layout)
-            all_layout.add_widget(bottom_layout)
-            speaker_layout.add_widget(all_layout)
+        self.speaker_bundle = QuantBundle("speaker")
+        widget = self.speaker_bundle.populate_with_dicts()
+        speaker_layout.add_widget(widget)
         self.tmpans = Label(text="END")
         speaker_layout.add_widget(self.tmpans)
         speaker_item.add_widget(speaker_layout)
@@ -539,29 +522,14 @@ class CalcAcousticsApp(App):
         #
         enclosure_item=AccordionItem(title="Enclosure")
         enclosure_layout=BoxLayout(orientation="vertical")
-        ans=self.inf.send({
-            "section": "speaker",
-            "item": "list_quantities",
-            "action": "get",
-            "value": None,
-            })
-        #enclosure_layout = (self.populate_with_dicts(enclosure_layout, ans))
-        #start_label = Label(
-        #        text = "START",
-        #        size_hint = (1, None),
-        #        size = (0, '80sp')
-        #        )
-        #enclosure_layout.add_widget(start_label)
-        self.bundle = QuantBundle(ans, "enclosure")
-        widget = self.bundle.populate_with_dicts()
-        widget.size_hint = (1, None )
-        #widget.size = (0, '300sp' )
-        enclosure_layout.add_widget(widget)
+        #self.bundle = QuantBundle("speaker")
+        #widget = self.bundle.populate_with_dicts()
+        #enclosure_layout.add_widget(widget)
         enclosure_layout.add_widget(Label(text="END"))
         enclosure_item.add_widget(enclosure_layout)
         self.root.add_widget(enclosure_item)
         # open speaker item as default when running program
-        speaker_item.collapse=True
+        speaker_item.collapse=False
         self.windows_size()
         return self.root
 
