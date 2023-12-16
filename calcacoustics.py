@@ -1,6 +1,7 @@
 #! env/bin/python
 
 # import logging stuff at first
+# TODO move function for files 
 
 try:
     from solver.logger import logging 
@@ -50,16 +51,18 @@ class Comm():
         self.inf=interface.Interface()
 
     def get(self, item: str) -> str:
-        ans=self.inf.send({
+        query = {
             "section": self.name,
             "item": item,
             "action": "get",
             "value": "",
-            })
+            }
+        logcom.debug(f"sending to interface: {query}")
+        ans=self.inf.send(query)
+        logcom.debug(f"get from interface: {ans}")
         logger.debug(
-                f"comm set {self.name}: {item} and get {ans['value']}"
+                f"getting {self.name}: {item} and get {ans['value']}"
                 )
-        logcom.debug(f"get: {ans}")
         return(ans["value"])
 
     def set(self, item: str, val: str) -> bool:
@@ -69,10 +72,10 @@ class Comm():
             "action": "set",
             "value": val
             }
+        logcom.debug(f"sending to interface: {query}")
         ans=self.inf.send(query)
+        logcom.debug(f"get from interface: {ans}")
         logger.debug(f"setting {self.name}: {item} with {val} updated")
-        logcom.debug(f"send to solver: {query}")
-        logcom.debug(f"get from solver: {ans}")
         # for checking correction if needed
         return(True)
 
@@ -83,23 +86,24 @@ class Comm():
             "action": "calculate",
             "value": ""
             }
+        logcom.debug(f"send to interface: {query}")
         ans=self.inf.send(query)
+        logcom.debug(f"get from interface: {ans}")
         logger.debug(f"calculate {self.name}: {item}")
-        logcom.debug(f"send to solver: {query}")
-        logcom.debug(f"get from solver: {ans}")
         return(ans["value"])
 
     def populate(self):
         """returns data to populate GUI"""
-
-        ans=self.inf.send({
+        query = {
             "section": self.name,
             "item": "list_quantities",
             "action": "get",
             "value": None,
-            })
+            }
+        logcom.debug(f"send to interface: {query}")
+        ans=self.inf.send(query)
+        logcom.debug(f"get from interface: {ans}")
         logger.debug(f"dictionary for populate {self.name} queried")
-        logcom.debug(f"populate with: {ans}")
         return(ans)
 
 class QuantBundle():
@@ -107,6 +111,16 @@ class QuantBundle():
     
     object of this class shall be self. in def build()
     to dispatch (ie. clicking) working
+
+    widgets in this class:
+        header: TODO
+            name
+            save to file
+            read from file
+        data bundle:
+            names
+            names
+        drawing TODO
     """
     def __init__(self, name:str="", comm:Comm=None):
         self.HEIGHT = sp(30)
@@ -146,6 +160,67 @@ class QuantBundle():
                     a['desc_label'].opacity=0
                     a['desc_label'].disabled=True
                     self.main_layout.size[1] -= sp(70)
+
+    def populate_header(self):
+        """
+        header_main:
+            header_top:
+                name
+                save
+                read
+            header_bottom:
+                <place for additional data, default hide>
+        """
+        #self.name_all = BoxLayout(
+        self.header_main = BoxLayout(
+                    orientation='vertical',
+                    size=(500, self.HEIGHT),
+                    size_hint = (1, None )
+                    )
+        self.header_top = BoxLayout(
+                    orientation="horizontal",
+                    size=(500, self.header_main.height),
+                    size_hint = (1, None )
+                    )
+        self.header_bottom = BoxLayout(
+                    orientation="horizontal",
+                    size=(500, 0),
+                    size_hint = (1, None )
+                    )
+        self.data_name = Label(text="coded in name")
+        open_ini = Button(text="open file")
+        open_ini.bind(on_press = self.open_file_dialog)
+        self.header_top.add_widget(self.data_name)
+        self.header_top.add_widget(open_ini)
+        if platform == 'android':
+            context = mActivity.getApplicationContext()
+            result = context.getExternalFilesDir(None)
+            if result:
+                bundle_ini_path = str(result.toString())
+            else:
+                bundle_ini_path = app_storage_path()
+            logger.debug(f"ini path: {speaker_ini_path}")
+            ini_file = bundle_ini_path + "test.ini"
+            with open(ini_file, 'w') as f:
+                f.write('test')
+        else:
+            speaker_ini_path = os.path.join(os.getcwd(), "speakers")
+            logger.debug(f"ini path: {speaker_ini_path}")
+        self.file_choose = FileChooserListView(
+                path = speaker_ini_path,
+                disabled = True,
+                opacity=0
+                )
+        self.file_choose.bind(selection=self.chosen_file)
+        self.header_bottom.add_widget(self.file_choose)
+        self.header_main.add_widget(self.header_top)
+        self.header_main.add_widget(self.header_bottom)
+        return(self.header_main)
+        #speaker_layout.add_widget(self.name_all)
+    def open_file_dialog(self):
+        pass
+    def chosen_file(self):
+        pass
 
     def populate_with_dicts(self):
         """populate widget with data from dictionary
@@ -264,6 +339,9 @@ class QuantBundle():
         return(self.main_layout)
 
     def calc_update(self):
+        print("recalculate values")
+#        self.speaker_producer.text = (self.comm.get('producer'))
+#       self.speaker_model.text = (self.comm.get('model'))
         logger.debug("update calculation")
         ans = self.comm.cal("EBP")
         self.data_qts["EBP"]["value"].text=str(ans)
@@ -275,29 +353,6 @@ class QuantBundle():
 
 
 class CalcAcousticsApp(App):
-
-    def speaker_get(self, item):
-        ans=self.inf.send({
-            "section": "speaker",
-            "item": item,
-            "action": "get",
-            "value": None
-            })
-        logger.debug(f"value getted is {ans['value']}")
-        return ans['value']
-
-    def speaker_set(self, item, val):
-        ans=self.inf.send({
-            "section": "speaker",
-            "item": item,
-            "action": "set",
-            "value": val 
-            })
-        if ans['value'] == val:
-            logger.debug(f"value set to {val}")
-        else:
-            logger.error(f"value is not set to {val}")
-        
 
     def chosen_file(self, obj, val):
         logger.debug(f"file chosen: {val}")
@@ -331,31 +386,6 @@ class CalcAcousticsApp(App):
             #val['value'].text = self.speaker_get(key)
             val['value'].text = self.speaker_bundle.comm.get(key)
 
-    def calc_update(self):
-        '''
-        ans=self.inf.send({
-            "section": "speaker",
-            "item": 'EBP',
-            "action": "calculate",
-            "value": "",
-            })
-            '''
-        ans = self.speaker_bundle.comm.cal("EBP")
-        #self.speaker_qts["EBP"]["value"].text=str(ans["value"])
-        self.speaker_bundle.data_qts["EBP"]["value"].text=str(ans["value"])
-
-    def num_val_update(self, instance, value):
-        # TODO remove function when not needed
-        logger.debug(f"value: {value}, key: {instance.kname} updated in GUI")
-        ans=self.inf.send({
-            "section": "speaker",
-            "item": instance.kname,
-            "action": "set",
-            "value": value,
-            })
-        self.tmpans.text=value
-        self.calc_update()
-
     def open_file_dialog(self, event):
         logger.debug(f"key: open file pressed")
         if self.file_choose.disabled:
@@ -370,29 +400,6 @@ class CalcAcousticsApp(App):
             self.file_choose.opacity=0
             self.name_all.size[1] -= sp(200)
             self.name_bottom.size[1] -= sp(200)
-
-
-
-    def open_description(self, event):
-        # TODO remove function when not needed
-        for key, val in self.speaker_qts.items():
-            if val['desc_btn'] == event:
-                #print (self.speaker_qts[key])
-                logger.debug(f"key: {key} pressed")
-                a=self.speaker_qts[key]
-                if a['desc_label'].disabled:
-                    a['bottom_layout'].size[1] = '70sp'
-                    a['all_layout'].size[1] = '100sp'
-                    a['desc_label'].opacity=1
-                    a['desc_label'].disabled=False
-                    a['desc_label'].size = a['bottom_layout'].size
-                    a['desc_label'].text_size = a['desc_label'].size
-                    #print(a['desc_label'].text_size)
-                else:
-                    a['bottom_layout'].size=(500,0 )
-                    a['all_layout'].size=(500, self.HEIGHT)
-                    a['desc_label'].opacity=0
-                    a['desc_label'].disabled=True
 
     def read_speaker_data():
         # send request for data
@@ -418,7 +425,6 @@ class CalcAcousticsApp(App):
             else:
                 self.root.orientation='horizontal'
 
-
     def build(self):
         """ buld views of GUI
         accrodion type
@@ -430,87 +436,16 @@ class CalcAcousticsApp(App):
             self.root.orientation='veritcal'
         self.comm = Comm("speaker")
         self.inf=interface.Interface()
-        # Speaker part
+        #
+        # Speaker
+        #
         # speaker data, mostly from poducer
-        # some calculation of ESP etc.
-        # values from object setting in a loop
-        # changeable object for values holded in dictionary
+        # some calculation of EPB etc.
         speaker_item=AccordionItem(title="Speaker")
         speaker_layout=BoxLayout(orientation="vertical")
-        # Ask iterface about list of parameters
-        
-        """
-        ans=self.inf.send({
-            "section": "speaker",
-            "item": "producer",
-            "action": "get",
-            "value": None,
-            })
-        logcom.debug(f"answer from calc: {ans}")
-            """
-        producer = self.comm.get("producer")
-
-        """
-        ans=self.inf.send({
-            "section": "speaker",
-            "item": "model",
-            "action": "get",
-            "value": None,
-            })
-        logcom.debug(f"answer from calc: {ans}")
-        """
-        model = self.comm.get("model")
-
-
-        self.name_all = BoxLayout(
-                    orientation='vertical',
-                    size=(500, self.HEIGHT),
-                    size_hint = (1, None )
-                    )
-        name_top = BoxLayout(
-                    orientation="horizontal",
-                    size=(500, self.name_all.height),
-                    size_hint = (1, None )
-                    )
-        self.name_bottom = BoxLayout(
-                    orientation="horizontal",
-                    size=(500, 0),
-                    size_hint = (1, None )
-                    )
-
-        #speaker_producer = Label(text=str(self.producer))
-        self.speaker_producer = Label(text=str(producer))
-        self.speaker_model = Label(text=str(model))
-        open_speaker_ini = Button(text="open file")
-        open_speaker_ini.bind(on_press = self.open_file_dialog)
-        name_top.add_widget(self.speaker_producer)
-        name_top.add_widget(self.speaker_model)
-        name_top.add_widget(open_speaker_ini)
-        if platform == 'android':
-            context = mActivity.getApplicationContext()
-            result = context.getExternalFilesDir(None)
-            if result:
-                speaker_ini_path = str(result.toString())
-            else:
-                speaker_ini_path = app_storage_path()
-            logger.debug(f"ini path: {speaker_ini_path}")
-            ini_file = speaker_ini_path + "test.ini"
-            with open(ini_file, 'w') as f:
-                f.write('test')
-        else:
-            speaker_ini_path = os.path.join(os.getcwd(), "speakers")
-            logger.debug(f"ini path: {speaker_ini_path}")
-        self.file_choose = FileChooserListView(
-                path = speaker_ini_path,
-                disabled = True,
-                opacity=0
-                )
-        self.file_choose.bind(selection=self.chosen_file)
-        self.name_bottom.add_widget(self.file_choose)
-        self.name_all.add_widget(name_top)
-        self.name_all.add_widget(self.name_bottom)
-        speaker_layout.add_widget(self.name_all)
         self.speaker_bundle = QuantBundle("speaker")
+        header = self.speaker_bundle.populate_header()
+        speaker_layout.add_widget(header)
         widget = self.speaker_bundle.populate_with_dicts()
         speaker_layout.add_widget(widget)
         self.tmpans = Label(text="END")
