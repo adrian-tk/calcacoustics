@@ -1,0 +1,12 @@
+# build and deploy
+buildozer -v android debug deploy run logcat
+
+# only build with
+buildozer -v andorid debug
+
+# only deploy when builded
+buildozer android deploy run logcat
+
+# log only android
+adb logcat -s "python"
+

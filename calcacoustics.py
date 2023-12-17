@@ -199,15 +199,15 @@ class QuantBundle():
                 bundle_ini_path = str(result.toString())
             else:
                 bundle_ini_path = app_storage_path()
-            logger.debug(f"ini path: {speaker_ini_path}")
+            logger.debug(f"ini path: {bundle_ini_path}")
             ini_file = bundle_ini_path + "test.ini"
             with open(ini_file, 'w') as f:
                 f.write('test')
         else:
-            speaker_ini_path = os.path.join(os.getcwd(), "speakers")
-            logger.debug(f"ini path: {speaker_ini_path}")
+            bundle_ini_path = os.path.join(os.getcwd(), "speakers")
+            logger.debug(f"ini path: {bundle_ini_path}")
         self.file_choose = FileChooserListView(
-                path = speaker_ini_path,
+                path = bundle_ini_path,
                 disabled = True,
                 opacity=0
                 )
@@ -465,7 +465,7 @@ class CalcAcousticsApp(App):
         Window.bind(on_resize=self.windows_size)
         self.root=Accordion()
         if platform == 'android':
-            self.root.orientation='veritcal'
+            self.root.orientation='vertical'
         self.comm = Comm("speaker")
         self.inf=interface.Interface()
         #
