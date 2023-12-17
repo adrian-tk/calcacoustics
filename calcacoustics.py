@@ -217,10 +217,32 @@ class QuantBundle():
         self.header_main.add_widget(self.header_bottom)
         return(self.header_main)
         #speaker_layout.add_widget(self.name_all)
-    def open_file_dialog(self):
-        pass
-    def chosen_file(self):
-        pass
+
+    def open_file_dialog(self, event):
+        widget_height = 200
+        logger.debug(f"key: open file pressed")
+        if self.file_choose.disabled:
+            self.file_choose.disabled = False
+            self.file_choose.opacity=1
+            self.header_main.size[1] += sp(widget_height)
+            self.header_bottom.size[1] += sp(widget_height)
+            #self.tmpans.text=self.file_choose.path
+        else:
+            self.file_choose.disabled = True
+            self.file_choose.opacity=0
+            self.header_main.size[1] -= sp(widget_height)
+            self.header_bottom.size[1] -= sp(widget_height)
+
+    def chosen_file(self, obj, val):
+        logger.debug(f"file chosen: {val}")
+        self.open_file_dialog(None)
+
+        ans=self.comm.set("speaker.ini", val)
+        # wait for answer and update
+        if ans:
+            self.update_all_gui()
+        else:
+            debug.error("can't update data from ini")
 
     def populate_with_dicts(self):
         """populate widget with data from dictionary
@@ -338,15 +360,25 @@ class QuantBundle():
         #    Rectangle(pos=main_layout.pos, size=main_layout.size)
         return(self.main_layout)
 
+    def update_all_gui(self):
+        # TODO fix it to class
+        print("update GUI values")
+        self.data_name.text = (self.comm.get('name'))
+        #for key, val in self.speaker_qts.items():
+        # TODO move to QuantBundle?
+        for key, val in self.data_qts.items():
+            ans = self.comm.get(key)
+            print(f"key: {ans} updated")
+            val['value'].text = ans
+
     def calc_update(self):
-        print("recalculate values")
-#        self.speaker_producer.text = (self.comm.get('producer'))
-#       self.speaker_model.text = (self.comm.get('model'))
-        logger.debug("update calculation")
+        logger.debug("recalculate EBP")
         ans = self.comm.cal("EBP")
         self.data_qts["EBP"]["value"].text=str(ans)
 
     def num_val_update(self, instance, value):
+        """ triggered after putting numbers in input field"""
+
         logger.debug(f"value: {value}, key: {instance.kname} updated in GUI")
         ans = self.comm.set(instance.kname, value)
         self.calc_update()
@@ -427,10 +459,10 @@ class CalcAcousticsApp(App):
 
     def build(self):
         """ buld views of GUI
+
         accrodion type
         """
         Window.bind(on_resize=self.windows_size)
-        self.HEIGHT='30sp'
         self.root=Accordion()
         if platform == 'android':
             self.root.orientation='veritcal'
@@ -439,8 +471,6 @@ class CalcAcousticsApp(App):
         #
         # Speaker
         #
-        # speaker data, mostly from poducer
-        # some calculation of EPB etc.
         speaker_item=AccordionItem(title="Speaker")
         speaker_layout=BoxLayout(orientation="vertical")
         self.speaker_bundle = QuantBundle("speaker")
