@@ -8,7 +8,7 @@ example looks like:
     value: 5
     }
 where:
-    section: name of function to work with
+    section: name of the solver module to work with
     item: name of some value
     action: set, get, answer, calculate
     value: used for set or answer
@@ -38,19 +38,27 @@ except Exception as err:
     print(err)
     print("Maybe You shall be in env?")
 
-
-#import speaker
 from solver import speaker
+from solver import cable
 #TODO: test script
 
 class Interface():
 
     def __init__(self):
+        print(logger)
+        # dict for holding interfaces
+        self.sections = {}
         self.version="0.1"
-        logger.debug("interface initialised")
+        logger.debug("initalise interfaces")
         self.sp=speaker.Speaker()
-        logger.debug("interface for speaker")
         self.sp.key_as_short_name()
+        self.sections['speaker'] = speaker.Speaker()
+        logger.debug("interface for speaker")
+        self.cable=cable.Cable()
+        self.cable.key_as_short_name()
+        self.sections['cable'] = cable.Cable()
+        logger.debug("interface for cable")
+        logger.debug(f"interfaces: {self.sections}")
 
     def simple_attr(self, data, case):
         """get data as dictrionary and create answer as dictionary
@@ -79,6 +87,38 @@ class Interface():
         else:
             logger.error(f"wrong action")
             return("error")
+
+    def get_list_quantities(data):
+        match data['action']:
+            case "get":
+                for key, val in self.sp.par.items():
+                    ans[key]=section(data).par[key].dictionary()
+                logcom.debug(f"solver sent to GUI: {ans}")
+            case _:
+                logger.error(
+                        f"there is no {data['action']} for list_quantities"
+                        )
+                ans = None
+        return(ans)
+        
+    def section(self, data):
+        """decide to which section of solver send query"""
+        ans = None
+        for key, val in self.sections.items():
+            if key == data['section']:
+                ans = val
+        if ans == None:
+            logger.error(f"No solver initialized for {data['section']}")
+        else:
+            logger.debug(f"section: data['section']")
+        return(ans)
+
+
+    def bundle(self, data):
+
+        match data["item"]:
+            case "list_quantities":
+                self.get_list_quantities(data)
 
     def speaker(self, data):
         ans={}
@@ -169,11 +209,21 @@ class Interface():
                 return (err)
 
 if __name__=="__main__":
+    logging.basicConfig()
     logcom.setLevel(logging.DEBUG)
+    logger.setLevel(logging.DEBUG)
     inf=Interface()
+    inf.bundle({
+        "section": "speaker",
+        "item": "EBP",
+        "action": "calculate",
+        "value": None,
+        })
+    """
     print(inf.send({
         "section": "speaker",
         "item": "EBP",
         "action": "calculate",
         "value": None,
         }))
+        """
