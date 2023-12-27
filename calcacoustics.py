@@ -11,7 +11,8 @@ try:
     logger.debug("imported loggers")
     from solver.logger import setlog
     #setlog('debug')
-    setlog('all')
+    setlog('com')
+    #setlog('all')
 except Exception as err:
     print("Can't import loggers")
     print(err)
@@ -58,7 +59,8 @@ class Comm():
             "value": "",
             }
         logcom.debug(f"sending to interface: {query}")
-        ans=self.inf.send(query)
+        #ans=self.inf.send(query)
+        ans=self.inf.ask(query)
         logcom.debug(f"get from interface: {ans}")
         logger.debug(
                 f"getting {self.name}: {item} and get {ans['value']}"
@@ -73,7 +75,8 @@ class Comm():
             "value": val
             }
         logcom.debug(f"sending to interface: {query}")
-        ans=self.inf.send(query)
+        #ans=self.inf.send(query)
+        ans=self.inf.ask(query)
         logcom.debug(f"get from interface: {ans}")
         logger.debug(f"setting {self.name}: {item} with {val} updated")
         # for checking correction if needed
@@ -115,6 +118,7 @@ class QuantBundle():
     widgets in this class:
         header: TODO
             name
+            description 
             save to file
             read from file
         data bundle:
@@ -124,6 +128,8 @@ class QuantBundle():
     """
     def __init__(self, name:str="", comm:Comm=None):
         self.HEIGHT = sp(30)
+        # use existing com if sent as parameter
+        # if not, create a new one using name
         self.bundle_name = name
         if comm is None:
             self.comm = Comm(self.bundle_name)
@@ -237,7 +243,7 @@ class QuantBundle():
         logger.debug(f"file chosen: {val}")
         self.open_file_dialog(None)
 
-        ans=self.comm.set("speaker.ini", val)
+        ans=self.comm.set("file.ini", val)
         # wait for answer and update
         if ans:
             self.update_all_gui()
@@ -368,8 +374,8 @@ class QuantBundle():
         # TODO move to QuantBundle?
         for key, val in self.data_qts.items():
             ans = self.comm.get(key)
-            print(f"key: {ans} updated")
-            val['value'].text = ans
+            print(f"key: {key} updated")
+            val['value'].text = str(ans)
 
     def calc_update(self):
         logger.debug("recalculate EBP")
@@ -378,32 +384,40 @@ class QuantBundle():
 
     def num_val_update(self, instance, value):
         """ triggered after putting numbers in input field"""
-
-        logger.debug(f"value: {value}, key: {instance.kname} updated in GUI")
-        ans = self.comm.set(instance.kname, value)
-        self.calc_update()
+        # for some reason, when replacing value, empty string is
+        # sending firs, this "if" shall reject it.
+        if value != "":
+            logger.debug(
+                    f"value: {value}, key: {instance.kname} updated in GUI"
+                    )
+            ans = self.comm.set(instance.kname, value)
+        #self.calc_update()
 
 
 class CalcAcousticsApp(App):
 
+    '''
     def chosen_file(self, obj, val):
         logger.debug(f"file chosen: {val}")
         self.open_file_dialog(None)
         """
         ans=self.inf.send({
             "section": "speaker",
-            "item": 'speaker.ini',
+            "item": 'file.ini',
             "action": "set",
             "value": val
             })
             """
-        ans=self.speaker_bundle.comm.set("speaker.ini", val)
+        ans=self.speaker_bundle.comm.set("file.ini", val)
         # wait for answer and update
         if ans:
             self.update_all_gui()
         else:
             debug.error("can't update data from ini")
+            
+    '''
 
+    '''
     def update_all_gui(self):
         print("update GUI values")
         self.speaker_producer.text = (self.comm.get('producer'))
@@ -417,7 +431,9 @@ class CalcAcousticsApp(App):
             val['value'].text = self.speaker_bundle.comm.get(key)
             #val['value'].text = self.speaker_get(key)
             val['value'].text = self.speaker_bundle.comm.get(key)
+    '''
 
+    """
     def open_file_dialog(self, event):
         logger.debug(f"key: open file pressed")
         if self.file_choose.disabled:
@@ -432,7 +448,9 @@ class CalcAcousticsApp(App):
             self.file_choose.opacity=0
             self.name_all.size[1] -= sp(200)
             self.name_bottom.size[1] -= sp(200)
+            """
 
+    """
     def read_speaker_data():
         # send request for data
         ans=self.inf.send({
@@ -444,6 +462,7 @@ class CalcAcousticsApp(App):
          
         for key, val in ans.items():
             logger.debug(key, val)
+    """
 
     def windows_size(self, *args):
         if platform == 'android':
@@ -497,6 +516,6 @@ class CalcAcousticsApp(App):
         speaker_item.collapse=False
         self.windows_size()
         return self.root
-
 if __name__=="__main__":
     CalcAcousticsApp().run()
+

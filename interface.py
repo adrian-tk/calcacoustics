@@ -10,8 +10,8 @@ example looks like:
 where:
     section: name of the solver module to work with
     item: name of some value
-    action: set, get, answer, calculate
-    value: used for set or answer
+    action: set, get, answer, confirm, calculate, error
+    value: used for set, answer or error
 any additional value possible
 """
 
@@ -38,27 +38,51 @@ except Exception as err:
     print(err)
     print("Maybe You shall be in env?")
 
+# add module here
 from solver import speaker
 from solver import cable
 #TODO: test script
 
+class Version():
+    """class for versioning of interface"""
+    def __init__(self):
+        self.version = 0.1
+    def get_version(self):
+        return(self.version)
+
 class Interface():
 
-    def __init__(self):
-        print(logger)
+    def __init__(
+            self,
+            sections = {
+                # add solvers here
+                'speaker': speaker.Speaker(),
+                'cable': cable.Cable(),
+                }
+            ):
         # dict for holding interfaces
-        self.sections = {}
-        self.version="0.1"
-        logger.debug("initalise interfaces")
-        self.sp=speaker.Speaker()
+        self.sections = sections
+        self.version="0.2" # to REMOVE
+        self.sp=speaker.Speaker() # to REMOVE
         self.sp.key_as_short_name()
-        self.sections['speaker'] = speaker.Speaker()
-        logger.debug("interface for speaker")
         self.cable=cable.Cable()
-        self.cable.key_as_short_name()
-        self.sections['cable'] = cable.Cable()
-        logger.debug("interface for cable")
-        logger.debug(f"interfaces: {self.sections}")
+        # for version etc.
+        self.sections['interface'] = self
+        logger.debug(
+                f"interfaces initialized: {list(self.sections.keys())}"
+                )
+        # dicts for holding query form gui
+        self.query={}
+        # dicts for preparing andswer to gui
+        self.answer={}
+
+    def ask(self, query):
+        """get query from GUI or other sources"""
+        self.query = query
+        logcom.debug(f"solver input: {self.query}")
+        self.convey()
+        logcom.debug(f"solver output: {self.answer}")
+        return self.answer
 
     def simple_attr(self, data, case):
         """get data as dictrionary and create answer as dictionary
@@ -88,7 +112,36 @@ class Interface():
             logger.error(f"wrong action")
             return("error")
 
+    def solver_attribute(self, attr):
+        match self.query['action']:
+            case "get":
+                self.answer['action'] = 'answer'
+                if hasattr(self.section(), attr):
+                    self.answer['value'] = getattr(self.section(), attr)
+                elif attr in self.section().par:
+                    self.answer['value'] = self.section().par[attr].value
+                else:
+                    logger.error(f"can't get attribute {attr}")
+            case "set":
+                self.answer['action'] = 'confirm'
+                if hasattr(self.section(), attr):
+                    setattr(self.section(), attr, self.query['value'])
+                    self.answer['value'] = getattr(self.section(), attr)
+                elif attr in self.section().par:
+                    self.section().par[attr].value = self.query['value']
+                    self.answer['value'] = self.section().par[attr].value
+                else:
+                    logger.error(f"can't set attribute {attr}")
+            case "calculate":
+                return (f"There is nothing to calculate in "
+                    f"attr. {item(data)} in {data}")
+            case "answer":
+                logger.error(f"answer {data} shall not be sent do solver")
+            case _:
+                logger.error(f"unknown action in: {data}")
+
     def get_list_quantities(data):
+        """old"""
         match data['action']:
             case "get":
                 for key, val in self.sp.par.items():
@@ -101,25 +154,48 @@ class Interface():
                 ans = None
         return(ans)
         
-    def section(self, data):
-        """decide to which section of solver send query"""
+    def section(self):
+        """try to connect section from qurey to section object
+
+        returns: object from sections dictionary
+        """
         ans = None
         for key, val in self.sections.items():
-            if key == data['section']:
+            if key == self.query['section']:
                 ans = val
+                self.answer['section']=key
         if ans == None:
-            logger.error(f"No solver initialized for {data['section']}")
-        else:
-            logger.debug(f"section: data['section']")
+            logger.error(
+                    f"No solver initialized for {self.query['section']}"
+                    )
         return(ans)
 
-
-    def bundle(self, data):
-
-        match data["item"]:
+    def convey(self):
+        """get data from query and convey them to attribute or method"""
+        match self.query["item"]:
+            case "version":
+                self.answer["item"]=self.query["item"]
+                self.solver_attribute("version")
+            case "name":
+                self.answer["item"]=self.query["item"]
+                self.solver_attribute("name") 
             case "list_quantities":
-                self.get_list_quantities(data)
+                ans={}
+                for key, val in self.section().par.items():
+                    ans[key]=self.section().par[key].dictionary()
+                logcom.debug(f"solver send to GUI: {ans}")
+                return(ans)
+            case "file.ini":
+                self.section().read_from_file(self.query['value'])
+                logger.debug("read ini file")
+                #data['action'] = 'answer'
+                #return data
 
+            case _:
+                if self.query["item"] in self.section().par:
+                    self.answer["item"]=self.query["item"]
+                    self.solver_attribute(self.query['item'])
+                
     def speaker(self, data):
         ans={}
         match data["item"]:
@@ -209,21 +285,29 @@ class Interface():
                 return (err)
 
 if __name__=="__main__":
-    logging.basicConfig()
-    logcom.setLevel(logging.DEBUG)
-    logger.setLevel(logging.DEBUG)
-    inf=Interface()
-    inf.bundle({
-        "section": "speaker",
-        "item": "EBP",
-        "action": "calculate",
-        "value": None,
-        })
-    """
-    print(inf.send({
-        "section": "speaker",
-        "item": "EBP",
-        "action": "calculate",
-        "value": None,
-        }))
-        """
+    if True:
+        import logging
+        logging.basicConfig(level="DEBUG")
+        logger.setLevel(level="DEBUG")
+        logcom.setLevel(level="DEBUG")
+        
+        inf=Interface()
+        query = {
+            "section": "speaker",
+            "item": "file.ini",
+            "action": "get",
+            "value": "d",
+        }
+        print(inf.ask(query))
+
+    # full test from unittest in tests directory
+    if False:
+        import unittest
+        from tests import unittest_interface
+        suite = unittest.TestSuite()
+        suite.addTest(
+                unittest.TestLoader().loadTestsFromModule(
+                    unittest_interface
+                )
+        )
+        unittest.TextTestRunner(verbosity=2).run(suite)

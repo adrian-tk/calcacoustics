@@ -68,10 +68,10 @@ class Speaker:
                  model="model",
                  description="some usual speaker",
                  ):
-        self.producer = producer
-        self.model = model
-        self.description = description
-        self.name=self.producer + '_' + self.model
+        #self.producer = producer
+        #self.model = model
+        #self.description = description
+        self.name="default name for speaker"
         self.par={
             'r_pow': Quant(
                 name='rated power',
@@ -248,15 +248,13 @@ class Speaker:
         # TODO test cases
         #FILETOREAD = 'speakers/Visaton_W200SC8OHM.ini'
         rspeak = configparser.ConfigParser()
-        rspeak.read(file)
+        rspeak.read(file, encoding='utf-8')
         logger.debug(f"start reading file: {file}")
         logger.debug(f"sections in file: {rspeak.sections()}")
         for section in rspeak.sections():
             if section == "general":
                 logger.debug("general section readed")
-                self.producer = rspeak[section]['producer']
-                print(self.producer)
-                self.model = rspeak[section]['model']
+                self.name = rspeak[section]['name']
                 self.description = rspeak[section]['description']
             else:
                 if section in self.par:

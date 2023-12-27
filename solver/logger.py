@@ -10,7 +10,7 @@ script twice
 """
 
 import logging
-
+LOGFORMAT = "%(levelname)s:%(name)s:%(funcName)s:%(message)s"
 # format for logging
 #LOGFORMAT="%(levelname)-8s[%(name)s]\
 #     [%(filename)s][%(funcName)s] %(message)s"
@@ -41,7 +41,10 @@ loggui = logging.getLogger('calac.gui')
 def setlog(verbose='standard'):
     match verbose:
         case 'debug':
-            logging.basicConfig(level=logging.INFO)
+            logging.basicConfig(
+                    level=logging.INFO,
+                    format=LOGFORMAT,
+                    )
             logger.setLevel(logging.DEBUG)
             logcom.setLevel(logging.ERROR)
             loggui.setLevel(logging.ERROR)
@@ -65,12 +68,26 @@ def setlog(verbose='standard'):
                 Logger.setLevel(LOG_LEVELS["critical"])
             except: pass
         case 'all':
-            logging.basicConfig(level=logging.DEBUG)
+            logging.basicConfig(
+                    level=logging.DEBUG,
+                    format=LOGFORMAT,
+                    )
             logger.setLevel(logging.DEBUG)
             logcom.setLevel(logging.DEBUG)
             loggui.setLevel(logging.DEBUG)
             try:
                 Logger.setLevel(LOG_LEVELS["debug"])
+            except: pass
+        case 'com':
+            logging.basicConfig(
+                    level=logging.DEBUG,
+                    format=LOGFORMAT,
+                    )
+            logger.setLevel(logging.DEBUG)
+            logcom.setLevel(logging.DEBUG)
+            loggui.setLevel(logging.CRITICAL)
+            try:
+                Logger.setLevel(LOG_LEVELS["critical"])
             except: pass
 
 if __name__ == '__main__':
