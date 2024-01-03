@@ -63,11 +63,7 @@ class Speaker:
     """Speaker parameters and calculations (without enclosure)
     """
 
-    def __init__(self,
-                 producer="producer",
-                 model="model",
-                 description="some usual speaker",
-                 ):
+    def __init__(self, name="speaker"):
         #self.producer = producer
         #self.model = model
         #self.description = description
@@ -173,9 +169,30 @@ class Speaker:
     Qms=3.4     # Mechanical Q factor
     # TODO add other
 
-    def recalculate(self):
-        if self.par['EBP'].calculate:
-            self.setEBP()
+    def recalculate(self, val:str) -> list:
+        """Decide what to calculate after values are updated.
+        
+        Examples:
+            >>> recalculate("fs")
+            ['EBP']
+
+        Args:
+            val:    value that was changed, probably in GUI
+                    "all" updated all values
+
+        Returns:
+            list of values need to be updated, probably in GUI
+        """
+
+        # set ignore repetition of values
+        calc_set = set()
+        if val in ("Qes", "fs", "all"):
+            calc_set.add("EBP")
+            if self.par['EBP'].calculate:
+                self.setEBP()
+                logger.debug(f"after '{val}' was changed, "
+                    f"{calc_set} shall be updated")
+        return (list(calc_set))
 
     def setEBP(self):
         """set EBP (Efficiency Bandwidth Product) in speaker class
@@ -196,7 +213,7 @@ class Speaker:
             val.short_name=key
 
     def save_to_file(self, filename=""):
-        """save speakers data to .ini file
+        """save data to .ini file
         """
 
         # TODO test cases
@@ -230,9 +247,7 @@ class Speaker:
         logger.debug(f"filename to save speaker: {filename}")
         save_speaker = configparser.ConfigParser()
         save_speaker['general'] = {
-                'producer': self.producer,
-                'model': self.model,
-                'description': self.description,
+                'name': self.name,
                 }
         for key, val in self.par.items():
             logger.debug(f"keys to save: {key}")
@@ -269,7 +284,7 @@ class Speaker:
 
     
 if __name__=='__main__':
-    logger.setLevel=(logging.DEBUG)
+    logger.setLevel(level='DEBUG')
     spkr = Speaker()
    # spkr.read_from_file()
    # print(f"speaker producer from file: {spkr.producer}")
@@ -292,5 +307,5 @@ if __name__=='__main__':
     print (f"EBP = {spkr.par['EBP'].value}")
     spkr.par['fs'].value=30.0
     spkr.par['Qes'].value=0.32
-    spkr.recalculate()
+    print(spkr.recalculate("all"))
     print (f"EBP recalculated = {spkr.par['EBP'].value}")

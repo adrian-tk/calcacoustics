@@ -10,7 +10,7 @@ script twice
 """
 
 import logging
-LOGFORMAT = "%(levelname)s:%(name)s:%(funcName)s:%(message)s"
+LOGFORMAT = "%(levelname)s:%(name)s:[%(filename)s]%(funcName)s:%(message)s"
 # format for logging
 #LOGFORMAT="%(levelname)-8s[%(name)s]\
 #     [%(filename)s][%(funcName)s] %(message)s"
@@ -42,7 +42,7 @@ def setlog(verbose='standard'):
     match verbose:
         case 'debug':
             logging.basicConfig(
-                    level=logging.INFO,
+                    level=logging.DEBUG,
                     format=LOGFORMAT,
                     )
             logger.setLevel(logging.DEBUG)
@@ -89,6 +89,15 @@ def setlog(verbose='standard'):
             try:
                 Logger.setLevel(LOG_LEVELS["critical"])
             except: pass
+# default log
+setlog("debug")
+
+def list_log():
+    """print available loggers"""
+    loggers = [logging.getLogger(name) for name in \
+        logging.root.manager.loggerDict]
+    for logg in loggers:
+        logger.debug(logg)
 
 if __name__ == '__main__':
     # set config level of kivy

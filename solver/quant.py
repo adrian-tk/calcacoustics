@@ -6,9 +6,15 @@ import common.quantity as q
 class Quant (q.quantity):
     """ adding calculate attribute to quantity"""
 
-    def __init__(self, *args, calculate = False, **kwargs):
+    def __init__(
+            self,
+            *args,
+            calculate = False,
+            dependencies = '',
+            **kwargs):
         super().__init__(*args, **kwargs)
         self.calculate = calculate
+        self.dependencies = dependencies
 
 #only for fast testing purpose
 if __name__ == "__main__":

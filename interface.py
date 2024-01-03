@@ -31,6 +31,7 @@ try:
     from solver.logger import logcom
     # set this logger as a child of main logger
     logger = logger.getChild(__name__)
+    #logger.setLevel(logging.DEBUG)
     logcom = logcom.getChild(__name__)
     logger.debug("imported loggers in interface")
 except Exception as err:
@@ -41,6 +42,7 @@ except Exception as err:
 # add module here
 from solver import speaker
 from solver import cable
+from solver.sections import template
 #TODO: test script
 
 class Version():
@@ -58,6 +60,8 @@ class Interface():
                 # add solvers here
                 'speaker': speaker.Speaker(),
                 'cable': cable.Cable(),
+                # template for testing
+                'template': template.CalcBundle()
                 }
             ):
         # dict for holding interfaces
@@ -75,14 +79,34 @@ class Interface():
         self.query={}
         # dicts for preparing andswer to gui
         self.answer={}
+        # list for multiple answers
+        self.answers=[]
+        # list for update object
+        self.update_list = []
 
     def ask(self, query):
         """get query from GUI or other sources"""
+
+        # empty answers
+        self.answers=[]
         self.query = query
         logcom.debug(f"solver input: {self.query}")
         self.convey()
-        logcom.debug(f"solver output: {self.answer}")
-        return self.answer
+        self.update()
+        logcom.debug(f"solver output: {self.answers}")
+        return self.answers
+
+    def update(self):
+        self.answers.append(self.answer)
+        for ans in self.update_list:
+            self.answers.append(
+                {
+                    "section": self.query["section"],
+                    "item": ans,
+                    "action": "answer",
+                    "value": str(self.section().par[ans].value)
+                }
+            )
 
     def simple_attr(self, data, case):
         """get data as dictrionary and create answer as dictionary
@@ -140,6 +164,21 @@ class Interface():
             case _:
                 logger.error(f"unknown action in: {data}")
 
+    def solver_list_quantities(self):
+        match self.query['action']:
+            case "get":
+                self.answer['action'] = 'answer'
+                ans={}
+                for key, val in self.section().par.items():
+                    ans[key]=self.section().par[key].dictionary()
+                    #print (ans[key])
+                logcom.debug(f"solver send to GUI: {ans}")
+                self.answer['value'] = ans
+            case _:
+                logger.error(f"there is no {self.query['action']} \
+                        for list_quantities")
+                ans = None
+
     def get_list_quantities(data):
         """old"""
         match data['action']:
@@ -168,6 +207,7 @@ class Interface():
             logger.error(
                     f"No solver initialized for {self.query['section']}"
                     )
+        logger.debug(f"section to ask: {ans}")
         return(ans)
 
     def convey(self):
@@ -176,25 +216,34 @@ class Interface():
             case "version":
                 self.answer["item"]=self.query["item"]
                 self.solver_attribute("version")
+                logger.debug("solver was asked about version")
             case "name":
                 self.answer["item"]=self.query["item"]
                 self.solver_attribute("name") 
+                logger.debug("solver was asked about name")
             case "list_quantities":
-                ans={}
-                for key, val in self.section().par.items():
-                    ans[key]=self.section().par[key].dictionary()
-                logcom.debug(f"solver send to GUI: {ans}")
-                return(ans)
+                self.answer["item"]=self.query["item"]
+                self.solver_list_quantities()
+                logger.debug("solver was asked about list quantities")
             case "file.ini":
                 self.section().read_from_file(self.query['value'])
                 logger.debug("read ini file")
+                logger.debug("solver was asked about ini file")
                 #data['action'] = 'answer'
                 #return data
-
             case _:
-                if self.query["item"] in self.section().par:
-                    self.answer["item"]=self.query["item"]
-                    self.solver_attribute(self.query['item'])
+                try:
+                    if self.query["item"] in self.section().par:
+                        logger.debug(f"solver was asked about \
+                                {self.query['item']} parameter")
+                        self.answer["item"]=self.query["item"]
+                        self.solver_attribute(self.query['item'])
+                        print(f"self.qery['item']: {self.query['item']}")
+                        self.update_list = self.section().recalculate(
+                                self.query['item'])
+                except Exception as err:
+                    logger.exception("cant get item")
+                    
                 
     def speaker(self, data):
         ans={}
@@ -285,29 +334,25 @@ class Interface():
                 return (err)
 
 if __name__=="__main__":
+    #if True:
     if True:
-        import logging
-        logging.basicConfig(level="DEBUG")
-        logger.setLevel(level="DEBUG")
-        logcom.setLevel(level="DEBUG")
-        
         inf=Interface()
         query = {
-            "section": "speaker",
-            "item": "file.ini",
-            "action": "get",
-            "value": "d",
+            "section": "template",
+            "item": "first",
+            "action": "set",
+            "value": "5",
         }
-        print(inf.ask(query))
+        print(inf.ask(query)[0]['value'])
 
-    # full test from unittest in tests directory
-    if False:
+    else:
+        # full test from unittest in tests directory
         import unittest
-        from tests import unittest_interface
+        from tests import unittest_interface_template
         suite = unittest.TestSuite()
         suite.addTest(
                 unittest.TestLoader().loadTestsFromModule(
-                    unittest_interface
+                    unittest_interface_template
                 )
         )
         unittest.TextTestRunner(verbosity=2).run(suite)

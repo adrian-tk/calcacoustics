@@ -1,7 +1,7 @@
 #! env/bin/python
 
+# TODO move function to files 
 # import logging stuff at first
-# TODO move function for files 
 
 try:
     from solver.logger import logging 
@@ -10,8 +10,9 @@ try:
     from solver.logger import loggui
     logger.debug("imported loggers")
     from solver.logger import setlog
+    from solver.logger import list_log
     #setlog('debug')
-    setlog('com')
+    #setlog('com')
     #setlog('all')
 except Exception as err:
     print("Can't import loggers")
@@ -37,10 +38,7 @@ from gui_kivy.kivy_common import FloatInput
 from gui_kivy.kivy_common import DescButton
 
 # print available loggers
-loggers = [logging.getLogger(name) for name in \
-        logging.root.manager.loggerDict]
-for logg in loggers:
-    logger.debug(logg)
+list_log()
 
 logger.debug(f"platform is {platform}")
 
@@ -51,36 +49,62 @@ class Comm():
         self.name = name
         self.inf=interface.Interface()
 
-    def get(self, item: str) -> str:
+    def getval(self, item: str) -> str:
+        """prepare query for interface, and return value
+
+        Example:
+        >>> getval('fs')
+        "6.0"
+
+        Args:
+            item: quantity to get value
+
+        Return:
+            value of item quantity
+        """
+        # query for sending to interface
         query = {
             "section": self.name,
             "item": item,
             "action": "get",
             "value": "",
             }
-        logcom.debug(f"sending to interface: {query}")
-        #ans=self.inf.send(query)
+        logcom.debug(f"comm sent to interface: {query}")
         ans=self.inf.ask(query)
-        logcom.debug(f"get from interface: {ans}")
+        logcom.debug(f"comm get from interface: {ans}")
         logger.debug(
-                f"getting {self.name}: {item} and get {ans['value']}"
+                f"getting {self.name}: {item} and get {ans[0]['value']}"
                 )
-        return(ans["value"])
+        # TODO get better list working? or maybe the first one is ok?
+        return(ans[0]["value"])
 
-    def set(self, item: str, val: str) -> bool:
+    def setval(self, item: str, val: str) -> list:
+        """query for setting value in solver
+
+
+        Example:
+        >>> setval('fs', '3.0')
+        <list of quantities>
+
+        Args:
+            item: quantity to set
+            val: value to set
+
+        Return:
+            list of dictionaries, first dic is confirmation,
+            next are with updated values
+        """
         query = {
             "section": self.name,
             "item": item,
             "action": "set",
             "value": val
             }
-        logcom.debug(f"sending to interface: {query}")
-        #ans=self.inf.send(query)
+        logcom.debug(f"comm sent to interface: {query}")
         ans=self.inf.ask(query)
-        logcom.debug(f"get from interface: {ans}")
+        logcom.debug(f"comm get from interface: {ans}")
         logger.debug(f"setting {self.name}: {item} with {val} updated")
-        # for checking correction if needed
-        return(True)
+        return(ans)
 
     def cal(self, item: str) -> str:
         query = {
@@ -109,6 +133,20 @@ class Comm():
         logger.debug(f"dictionary for populate {self.name} queried")
         return(ans)
 
+    def getlist(self):
+        """returns data to populate GUI"""
+        query = {
+            "section": self.name,
+            "item": "list_quantities",
+            "action": "get",
+            "value": None,
+            }
+        logcom.debug(f"send to interface: {query}")
+        ans=self.inf.ask(query)
+        logcom.debug(f"get from interface: {ans}")
+        logger.debug(f"dictionary for populate {self.name} queried")
+        return(ans[0]['value'])
+
 class QuantBundle():
     """class for creating and working with multiple data widgets
     
@@ -136,6 +174,7 @@ class QuantBundle():
         else:
             self.comm = comm
         self.dictionary = self.comm.populate()
+        self.dictionary = self.comm.getlist()
         # dictionary of dictionaries to hold
         # data from widget created in loop
         # ie: {Qts: {unit: <some object>}}
@@ -193,7 +232,7 @@ class QuantBundle():
                     size=(500, 0),
                     size_hint = (1, None )
                     )
-        self.data_name = Label(text="coded in name")
+        self.data_name = Label(text="default name")
         open_ini = Button(text="open file")
         open_ini.bind(on_press = self.open_file_dialog)
         self.header_top.add_widget(self.data_name)
@@ -243,7 +282,7 @@ class QuantBundle():
         logger.debug(f"file chosen: {val}")
         self.open_file_dialog(None)
 
-        ans=self.comm.set("file.ini", val)
+        ans=self.comm.setval("file.ini", val)
         # wait for answer and update
         if ans:
             self.update_all_gui()
@@ -269,6 +308,7 @@ class QuantBundle():
                 size_hint = (1, None),
                 )
         # outside loop for get quantity
+        print(self.dictionary)
         for key, val in self.dictionary.items():
             # dict for widgets in quantity
             qty_widgets={}
@@ -336,6 +376,10 @@ class QuantBundle():
                         qty_widgets.update({
                             'value': qty_val,
                             })
+
+                    case 'dependencies':
+                        # don't show this
+                        pass
                                 
                     case default:
                         tmp_q = Label(text=str(ival))
@@ -367,13 +411,10 @@ class QuantBundle():
         return(self.main_layout)
 
     def update_all_gui(self):
-        # TODO fix it to class
         print("update GUI values")
-        self.data_name.text = (self.comm.get('name'))
-        #for key, val in self.speaker_qts.items():
-        # TODO move to QuantBundle?
+        self.data_name.text = (self.comm.getval('name'))
         for key, val in self.data_qts.items():
-            ans = self.comm.get(key)
+            ans = self.comm.getval(key)
             print(f"key: {key} updated")
             val['value'].text = str(ans)
 
@@ -390,79 +431,15 @@ class QuantBundle():
             logger.debug(
                     f"value: {value}, key: {instance.kname} updated in GUI"
                     )
-            ans = self.comm.set(instance.kname, value)
-        #self.calc_update()
+            answers = self.comm.setval(instance.kname, value)
+            for answer in answers:
+                if answer["action"] == "answer":
+                    self.data_qts[answer['item']]["value"].text= \
+                            str(answer['value'])
+                    logger.debug(f"{answer['item']} updated")
 
 
 class CalcAcousticsApp(App):
-
-    '''
-    def chosen_file(self, obj, val):
-        logger.debug(f"file chosen: {val}")
-        self.open_file_dialog(None)
-        """
-        ans=self.inf.send({
-            "section": "speaker",
-            "item": 'file.ini',
-            "action": "set",
-            "value": val
-            })
-            """
-        ans=self.speaker_bundle.comm.set("file.ini", val)
-        # wait for answer and update
-        if ans:
-            self.update_all_gui()
-        else:
-            debug.error("can't update data from ini")
-            
-    '''
-
-    '''
-    def update_all_gui(self):
-        print("update GUI values")
-        self.speaker_producer.text = (self.comm.get('producer'))
-        self.speaker_model.text = (self.comm.get('model'))
-        #for key, val in self.speaker_qts.items():
-        # TODO move to QuantBundle?
-        for key, val in self.speaker_bundle.data_qts.items():
-            print(key)
-            print(val['value'].text)
-            print(f"key: {self.speaker_bundle.comm.get(key)}")
-            val['value'].text = self.speaker_bundle.comm.get(key)
-            #val['value'].text = self.speaker_get(key)
-            val['value'].text = self.speaker_bundle.comm.get(key)
-    '''
-
-    """
-    def open_file_dialog(self, event):
-        logger.debug(f"key: open file pressed")
-        if self.file_choose.disabled:
-            self.file_choose.disabled = False
-            self.file_choose.opacity=1
-
-            self.name_all.size[1] += sp(200)
-            self.name_bottom.size[1] += sp(200)
-            self.tmpans.text=self.file_choose.path
-        else:
-            self.file_choose.disabled = True
-            self.file_choose.opacity=0
-            self.name_all.size[1] -= sp(200)
-            self.name_bottom.size[1] -= sp(200)
-            """
-
-    """
-    def read_speaker_data():
-        # send request for data
-        ans=self.inf.send({
-            "section": "speaker",
-            "item": "list_quantities",
-            "action": "get",
-            "value": None,
-            })
-         
-        for key, val in ans.items():
-            logger.debug(key, val)
-    """
 
     def windows_size(self, *args):
         if platform == 'android':
@@ -479,17 +456,16 @@ class CalcAcousticsApp(App):
     def build(self):
         """ buld views of GUI
 
-        accrodion type
+        accordion type
         """
         Window.bind(on_resize=self.windows_size)
         self.root=Accordion()
         if platform == 'android':
             self.root.orientation='vertical'
-        self.comm = Comm("speaker")
-        self.inf=interface.Interface()
         #
         # Speaker
         #
+        self.comm = Comm("speaker")
         speaker_item=AccordionItem(title="Speaker")
         speaker_layout=BoxLayout(orientation="vertical")
         self.speaker_bundle = QuantBundle("speaker")
@@ -512,8 +488,19 @@ class CalcAcousticsApp(App):
         enclosure_layout.add_widget(Label(text="END"))
         enclosure_item.add_widget(enclosure_layout)
         self.root.add_widget(enclosure_item)
+        #
+        # template (for test)
+        #
+        template_item=AccordionItem(title="Template")
+        template_layout=BoxLayout(orientation="vertical")
+        self.bundle = QuantBundle("template")
+        widget = self.bundle.populate_with_dicts()
+        template_layout.add_widget(widget)
+        template_layout.add_widget(Label(text="END"))
+        template_item.add_widget(template_layout)
+        self.root.add_widget(template_item)
         # open speaker item as default when running program
-        speaker_item.collapse=False
+#        speaker_item.collapse=False
         self.windows_size()
         return self.root
 if __name__=="__main__":
