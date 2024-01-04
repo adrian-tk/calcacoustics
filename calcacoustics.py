@@ -494,6 +494,8 @@ class CalcAcousticsApp(App):
         template_item=AccordionItem(title="Template")
         template_layout=BoxLayout(orientation="vertical")
         self.bundle = QuantBundle("template")
+        header = self.bundle.populate_header()
+        template_layout.add_widget(header)
         widget = self.bundle.populate_with_dicts()
         template_layout.add_widget(widget)
         template_layout.add_widget(Label(text="END"))

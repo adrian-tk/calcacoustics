@@ -207,7 +207,7 @@ class Interface():
             logger.error(
                     f"No solver initialized for {self.query['section']}"
                     )
-        logger.debug(f"section to ask: {ans}")
+        #logger.debug(f"section to ask: {ans}")
         return(ans)
 
     def convey(self):
@@ -234,11 +234,10 @@ class Interface():
             case _:
                 try:
                     if self.query["item"] in self.section().par:
-                        logger.debug(f"solver was asked about \
-                                {self.query['item']} parameter")
+                        logger.debug(f"solver was asked about "
+                                f"{self.query['item']} parameter")
                         self.answer["item"]=self.query["item"]
                         self.solver_attribute(self.query['item'])
-                        print(f"self.qery['item']: {self.query['item']}")
                         self.update_list = self.section().recalculate(
                                 self.query['item'])
                 except Exception as err:
@@ -343,7 +342,6 @@ if __name__=="__main__":
             "action": "set",
             "value": "5",
         }
-        print(inf.ask(query)[0]['value'])
 
     else:
         # full test from unittest in tests directory
