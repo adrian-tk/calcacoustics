@@ -12,7 +12,6 @@ import unittest_quantity
 import unittest_enclosure
 import unittest_interface
 
-# TODO: split unittest_basic for different files
 suite = unittest.TestSuite()
 tl=unittest.TestLoader()
 #add test files

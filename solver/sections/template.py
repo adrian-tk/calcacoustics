@@ -30,6 +30,7 @@ except Exception as err:
 import os
 import configparser
 from solver.quant import Quant
+from common import rootdir
 
 
 class CalcBundle:
@@ -38,6 +39,7 @@ class CalcBundle:
 
     def __init__(self, name="just template"):
         filename = os.path.basename(__file__)
+        # TODO moving to class attribute?
         self.section_name = os.path.splitext(filename)[0]
         self.section_description = ""
         self.name=name
@@ -47,6 +49,11 @@ class CalcBundle:
         # dictionary of parameters for solver
         self.dep={}
         self.load_dependencies()
+        # directory with input files
+        self.input_path = os.path.join(
+                rootdir.prefix(), 'input', self.section_name
+                )
+        os.makedirs(self.input_path, exist_ok = True)
         logger.debug(f"{self.section_name} section initialised")
 
     # here create functions for calculation
@@ -75,7 +82,7 @@ class CalcBundle:
     def load_parameters(self):
         """ loads parameters from .ini file
 
-        ini shall has this same name as module
+        ini shall has this same name as section
         """
         ininame = self.section_name + '.ini'
         inifile = configparser.ConfigParser()
@@ -202,49 +209,50 @@ class CalcBundle:
             save_speaker.write(file)
 
     def read_from_file(self, file=""):
-        """read speakers data from file
+        """read input data from file
+
         """
         # TODO test cases
         #FILETOREAD = 'speakers/Visaton_W200SC8OHM.ini'
-        rspeak = configparser.ConfigParser()
-        rspeak.read(file, encoding='utf-8')
-        logger.debug(f"start reading file: {file}")
-        logger.debug(f"sections in file: {rspeak.sections()}")
-        for section in rspeak.sections():
+        cp = configparser.ConfigParser()
+        cp.read(file, encoding='utf-8')
+        logger.debug(f"start reading input file: {file}")
+        logger.debug(f"sections in file: {cp.sections()}")
+        for section in cp.sections():
             if section == "general":
                 logger.debug("general section readed")
-                self.name = rspeak[section]['name']
-                self.description = rspeak[section]['description']
+                self.name = cp[section]['name']
+                self.description = cp[section]['description']
             else:
                 if section in self.par:
-                    self.par[section].value=rspeak[section]['value']
-                    self.par[section].unit=rspeak[section]['unit']
+                    self.par[section].value=cp[section]['value']
+                    self.par[section].unit=cp[section]['unit']
                     logger.debug(f"section {section} readed from file")
                 else:
                     logger.warning(
                             f"unknown section: {section} in {file}"
                             )
-        logger.debug("end of reading speaker config file")
+        logger.debug("end of reading input file")
 
     
 if __name__=='__main__':
     obj = CalcBundle()
     #obj.load_attributes()
-   # obj.read_from_file()
-    for element in obj.par:
-        print(f"{obj.par[element].name}: {obj.par[element].value}")
-    print('changing non calculating values')
-    for element in obj.par:
-        if not obj.par[element].calculate:
-            obj.par[element].value=0.32
-    for element in obj.par:
-        print(f"{obj.par[element].name}: {obj.par[element].value}")
-    # TODO testing for attr 'all' and 'sum'
-    obj.recalculate('first')
-    print('calculate values')
-    for element in obj.par:
-        print(f"{obj.par[element].name}: {obj.par[element].value}")
-    # TODO testing for calculate = False
+    #obj.read_from_file("../../input/template/some_template.ini")
+    #for element in obj.par:
+    #    print(f"{obj.par[element].name}: {obj.par[element].value}")
+    #print('changing non calculating values')
+    #for element in obj.par:
+    #    if not obj.par[element].calculate:
+    #        obj.par[element].value=0.32
+    #for element in obj.par:
+    #    print(f"{obj.par[element].name}: {obj.par[element].value}")
+    ## TODO testing for attr 'all' and 'sum'
+    #obj.recalculate('first')
+    #print('calculate values')
+    #for element in obj.par:
+    #    print(f"{obj.par[element].name}: {obj.par[element].value}")
+    ## TODO testing for calculate = False
    # spkr.save_to_file()
    # visaton=Speaker("Visaton")
    # for key, val in visaton.par.items():

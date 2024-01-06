@@ -231,6 +231,14 @@ class Interface():
                 logger.debug("solver was asked about ini file")
                 #data['action'] = 'answer'
                 #return data
+            case "input_dir":
+                self.answer["item"]=self.query["item"]
+                self.solver_attribute("")
+                logger.debug("solver was asked about input directory")
+                logger.debug("read ini file")
+                logger.debug("solver was asked about ini file")
+                #data['action'] = 'answer'
+                #return data
             case _:
                 try:
                     if self.query["item"] in self.section().par:

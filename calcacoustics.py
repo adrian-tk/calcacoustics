@@ -81,7 +81,6 @@ class Comm():
     def setval(self, item: str, val: str) -> list:
         """query for setting value in solver
 
-
         Example:
         >>> setval('fs', '3.0')
         <list of quantities>
@@ -249,7 +248,12 @@ class QuantBundle():
             with open(ini_file, 'w') as f:
                 f.write('test')
         else:
-            bundle_ini_path = os.path.join(os.getcwd(), "speakers")
+            #bundle_ini_path = os.path.join(os.getcwd(), "speakers")
+            bundle_ini_path = os.path.join(
+                    os.getcwd(),
+                    'input',
+                    self.bundle_name,
+                    )
             logger.debug(f"ini path: {bundle_ini_path}")
         self.file_choose = FileChooserListView(
                 path = bundle_ini_path,
