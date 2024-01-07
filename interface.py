@@ -342,7 +342,7 @@ class Interface():
 
 if __name__=="__main__":
     #if True:
-    if True:
+    if False:
         inf=Interface()
         query = {
             "section": "template",
