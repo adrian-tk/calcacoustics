@@ -146,7 +146,6 @@ class CalcBundle:
         for dkey, dval in self.dep.items():
             if self.par[dkey].calculate:
                 if val in dval or val == 'all':
-                    # TODO to replace funcion name
                     logger.debug(f"{dkey} needs to be recalculated")
                     to_cal_item = getattr(self, 'cal_'+dkey)
                     # list with values
@@ -225,8 +224,8 @@ class CalcBundle:
                 self.description = cp[section]['description']
             else:
                 if section in self.par:
-                    self.par[section].value=cp[section]['value']
-                    self.par[section].unit=cp[section]['unit']
+                    self.par[section].value=cp.getfloat(section, 'value')
+                    self.par[section].unit=cp.get(section, 'unit')
                     logger.debug(f"section {section} readed from file")
                 else:
                     logger.warning(
@@ -236,29 +235,24 @@ class CalcBundle:
 
     
 if __name__=='__main__':
-    obj = CalcBundle()
-    #obj.load_attributes()
-    #obj.read_from_file("../../input/template/some_template.ini")
-    #for element in obj.par:
-    #    print(f"{obj.par[element].name}: {obj.par[element].value}")
-    #print('changing non calculating values')
-    #for element in obj.par:
-    #    if not obj.par[element].calculate:
-    #        obj.par[element].value=0.32
-    #for element in obj.par:
-    #    print(f"{obj.par[element].name}: {obj.par[element].value}")
-    ## TODO testing for attr 'all' and 'sum'
-    #obj.recalculate('first')
-    #print('calculate values')
-    #for element in obj.par:
-    #    print(f"{obj.par[element].name}: {obj.par[element].value}")
-    ## TODO testing for calculate = False
-   # spkr.save_to_file()
-   # visaton=Speaker("Visaton")
-   # for key, val in visaton.par.items():
-   #     print(key, val)
-   # visaton.key_as_short_name()
-   # print(f"long name: {visaton.par['z'].name}, "
-   #       f"short name: {visaton.par['z'].short_name}")
-   # visaton.par['fs'].value=27.0
-   # visaton.par['Qes'].value=0.32
+    if False:
+        obj = CalcBundle()
+        #obj.read_from_file("../../input/template/some_template.ini")
+        for element in obj.par:
+            print(f"{obj.par[element].name}: {obj.par[element].value}")
+        print('changing non calculating values')
+        for element in obj.par:
+            if not obj.par[element].calculate:
+                obj.par[element].value=0.32
+        for element in obj.par:
+            print(f"{obj.par[element].name}: {obj.par[element].value}")
+        # TODO testing for attr 'all' and 'sum'
+        obj.recalculate('first')
+        print('calculate values')
+        for element in obj.par:
+            print(f"{obj.par[element].name}: {obj.par[element].value}")
+        ## TODO testing for calculate = False
+    else:
+        # use full test from file in tests directory
+        import common.testcases
+        common.testcases.CallExternalFile(__file__)
