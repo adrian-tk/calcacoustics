@@ -1,11 +1,3 @@
-"""Provide template for bundle calculations
-
-Copy it with new section name, 
-and copy ini file with this same new name
-
-This template is used also for testing scripts,
-so leave it here better.
-"""
 # files might be run from different directory
 # mostly as script
 try:
@@ -25,39 +17,41 @@ class CalcBundle(gs.GenericSection):
         super().__init__(name, __file__)
 
     #==========start editing section==========#
-    
+
     # here create functions for calculation
     # every function shall has name cal_ and name
     # from .ini file
 
-    def cal_sum(self, first: float, second: float) -> float:
-        """Calculate sum of two numbers
+    def cal_EBP(self, Qes: float, fs: float) -> float:
+        """Calculate EBP (Efficiency Bandwidth Product)
 
         Examples:
-            >>> cal_sum(3.0, 0.14 )
-            3.14
+            >>> calEBP(0.32, 27.0)
+            84.375
         
         Args:
-            first:  first number to add
-            second: second number to add
+            Qes:    Electrical Q factor, unitless
+            fs:     Resonance frequency, Hz
 
         Returns:
-            sum of two numbers
+            Efficiency Bandwidth Product
 
         Raises:
-            don't rises any error
+            ZeroDivisionError: trying to divide by Qes == 0
         """
 
-        ans = float(first) + float(second)
+        if Qes == 0:
+            raise ZeroDivisionError("division by zero")
 
-        return ans
+        EBP = float(fs)/Qes
+
+        return EBP
 
     #===========end editing section===========#
-
 if __name__=='__main__':
     # set to true for fast checking
     # set to False for using test script in tests
-    if False:
+    if True:
         obj = CalcBundle()
         #obj.read_from_file("../../input/template/some_template.ini")
         for element in obj.par:
@@ -69,7 +63,7 @@ if __name__=='__main__':
         for element in obj.par:
             print(f"{obj.par[element].name}: {obj.par[element].value}")
         # TODO testing for attr 'all' and 'sum'
-        obj.recalculate('first')
+        obj.recalculate('EBP')
         print('calculate values')
         for element in obj.par:
             print(f"{obj.par[element].name}: {obj.par[element].value}")

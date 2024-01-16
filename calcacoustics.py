@@ -497,14 +497,27 @@ class CalcAcousticsApp(App):
         #
         template_item=AccordionItem(title="Template")
         template_layout=BoxLayout(orientation="vertical")
-        self.bundle = QuantBundle("template")
-        header = self.bundle.populate_header()
+        self.template_bundle = QuantBundle("template")
+        header = self.template_bundle.populate_header()
         template_layout.add_widget(header)
-        widget = self.bundle.populate_with_dicts()
+        widget = self.template_bundle.populate_with_dicts()
         template_layout.add_widget(widget)
         template_layout.add_widget(Label(text="END"))
         template_item.add_widget(template_layout)
         self.root.add_widget(template_item)
+        #
+        # glosnik for remove
+        #
+        glosnik_item=AccordionItem(title="Glosnik")
+        glosnik_layout=BoxLayout(orientation="vertical")
+        self.gbundle = QuantBundle("glosnik")
+        header = self.gbundle.populate_header()
+        glosnik_layout.add_widget(header)
+        widget = self.gbundle.populate_with_dicts()
+        glosnik_layout.add_widget(widget)
+        glosnik_layout.add_widget(Label(text="END"))
+        glosnik_item.add_widget(glosnik_layout)
+        self.root.add_widget(glosnik_item)
         # open speaker item as default when running program
 #        speaker_item.collapse=False
         self.windows_size()

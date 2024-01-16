@@ -1,16 +1,12 @@
 """Provide template for bundle calculations
 
-Copy it with new section name, 
-and copy ini file with this same new name
-
-This template is used also for testing scripts.
+create class and ihereite this class as in template
 """
-
-#TODO  move class to other file, and inheritance them 
 
 # search path to import all
 import sys
 # file shall be in solver/sections subfolder - add main folder
+sys.path.append('../')
 sys.path.append('../../')
 
 try:
@@ -24,8 +20,6 @@ except Exception as err:
     print("Can't import loggers")
     print(err)
     print("Maybe You shall be in env?")
-
-
 
 import os
 import configparser
@@ -86,9 +80,10 @@ class GenericSection:
                 self.par[section] = Quant(
                     name=inifile.get(section, 'name'),
                     value=inifile.getfloat(section, 'value'),
-                    unit=inifile.get(section, 'unit'),
-                    desc=inifile.get(section, 'desc'),
-                    calculate=inifile.getboolean(section, 'calculate'),
+                    unit=inifile.get(section, 'unit', fallback="-"),
+                    desc=inifile.get(section, 'desc', fallback=""),
+                    calculate=inifile.getboolean(
+                        section, 'calculate', fallback=False),
                     dependencies=inifile.get(section,
                         'dependencies', fallback=''),
                     )
@@ -127,9 +122,10 @@ class GenericSection:
             if self.par[dkey].calculate:
                 if val in dval or val == 'all':
                     logger.debug(f"{dkey} needs to be recalculated")
-                    to_cal_item = getattr(self, 'cal_'+dkey)
+                    to_cal_item = getattr(self, 'cal_' + dkey)
                     # list with values
-                    tmp_val = [self.par[x].value for x in dval] 
+                    tmp_val = [float(self.par[x].value) for x in dval] 
+                    print(tmp_val)
                     self.par[dkey].value = to_cal_item(*tmp_val)
                     logger.debug(f"{dkey} for {dval} " 
                             f"is {self.par[dkey].value}")

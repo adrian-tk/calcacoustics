@@ -15,16 +15,8 @@ where:
 any additional value possible
 """
 
-#LOGFORMAT="%(levelname)-8s[%(name)s]\
-#    [%(filename)s][%(funcName)s] %(message)s"
-#LOGFILEFORMAT="%(asctime)s - %(levelname)-8s\
-#        [%(name)s][%(filename)s:%(lineno)d]\
-#        [%(funcName)s] %(message)s"
+from importlib import import_module
 
-#import logging
-#logging.basicConfig(format=LOGFORMAT, level=logging.DEBUG)
-#logcom = logging.getLogger(f"calac.com.{__name__}")
-#logger = logging.getLogger(f"calac.{__name__}")
 try:
     from solver.logger import logging
     from solver.logger import logger
@@ -42,7 +34,9 @@ except Exception as err:
 # add module here
 from solver import speaker
 from solver import cable
-from solver.sections import template
+#from solver.sections import template
+#from solver.sections import glosnik
+
 #TODO: test script
 
 class Version():
@@ -61,7 +55,11 @@ class Interface():
                 'speaker': speaker.Speaker(),
                 'cable': cable.Cable(),
                 # template for testing
-                'template': template.CalcBundle()
+                'template':import_module(
+                    'solver.sections.template').CalcBundle(),
+                'glosnik': import_module(
+                    'solver.sections.glosnik').CalcBundle(),
+                #'glosnik': glosnik.CalcBundle()
                 }
             ):
         # dict for holding interfaces
@@ -249,7 +247,7 @@ class Interface():
                         self.update_list = self.section().recalculate(
                                 self.query['item'])
                 except Exception as err:
-                    logger.exception("cant get item")
+                    logger.exception(f"can't get {self.query['item']} item")
                     
                 
     def speaker(self, data):
@@ -341,8 +339,8 @@ class Interface():
                 return (err)
 
 if __name__=="__main__":
-    #if True:
-    if False:
+    if True:
+    #if False:
         inf=Interface()
         query = {
             "section": "template",

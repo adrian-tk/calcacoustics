@@ -36,6 +36,7 @@ if __name__ == '__main__':
     else:
         # if used with nut (no unit test) don't make test
         # important to not fall into infinite loop when testing
+        # beacuse file is copied and started as a new process
         if len(sys.argv) == 1 or sys.argv[1] != 'nut':
         # full test from unittest in tests directory
             import unittest
