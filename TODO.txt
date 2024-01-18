@@ -1,6 +1,10 @@
-simplify creating bundles:
-at this time:
-has to stay: create somename.ini and somename.py
-add import solver.sections somename to interface.ini
-add somename to list of sections
-add section in calcacoustic.py
+now:
+cleaning code
+documentation
+test cases
+adding some calculators
+add calcuation button
+create automaticly directories for .ini
+
+someday:
+

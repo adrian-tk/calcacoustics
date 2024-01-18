@@ -9,8 +9,6 @@ import tempfile
 from solver.list_sections import list_sections
 #from common import rootdir
 
-PRINT = False
-
 class TestRootDir(unittest.TestCase):
     """test list_section module
 
@@ -42,6 +40,7 @@ class TestRootDir(unittest.TestCase):
                  +--template.ini    # this one is not listed by default 
                  +--and with space.ini
                  +--tricky_one.ini.ini
+                 +--good.one.with.dots.ini
                  +--this_one_is_wrong.ini.txt
                  +--wrong_wrong_wrong.paganini
                  +--ini
@@ -67,6 +66,7 @@ class TestRootDir(unittest.TestCase):
                 'template.ini',
                 'and with space.ini',
                 'tricky_one.ini.ini',
+                'good.one.with.dots',
                 'this_one_is_wrong.ini.txt',
                 'wrong_wrong_wrong.paganini',
                 'ini',
@@ -87,15 +87,15 @@ class TestRootDir(unittest.TestCase):
 
         cls.tmpdir.cleanup()
 
-    def ntest_print(self):
+    def notest_print(self):
         """script in root called from root
         """
         os.chdir(self.tmpdir.name)
-        if PRINT: print(f'root: {os.listdir()}')
+        print(f'root: {os.listdir()}')
         os.chdir(self.tmpdir.name + '/solver')
-        if PRINT: print(f'root/solver: {os.listdir()}')
+        print(f'root/solver: {os.listdir()}')
         os.chdir(self.tmpdir.name + '/solver/sections')
-        if PRINT: print(f'root/solver/sections: {os.listdir()}')
+        print(f'root/solver/sections: {os.listdir()}')
 
     def test_default(self):
         """default behavior
@@ -104,7 +104,6 @@ class TestRootDir(unittest.TestCase):
         """
 
         ls = list_sections(self.tmpdir.name + '/solver/sections/')
-        if PRINT: print(ls)
         FILELIST = [
                 'good',
                 'also_good',

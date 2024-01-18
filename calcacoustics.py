@@ -118,19 +118,19 @@ class Comm():
         logger.debug(f"calculate {self.name}: {item}")
         return(ans["value"])
 
-    def populate(self):
+    def getsections(self):
         """returns data to populate GUI"""
         query = {
             "section": self.name,
-            "item": "list_quantities",
+            "item": "list_sections",
             "action": "get",
             "value": None,
             }
         logcom.debug(f"send to interface: {query}")
-        ans=self.inf.send(query)
+        ans=self.inf.ask(query)
         logcom.debug(f"get from interface: {ans}")
-        logger.debug(f"dictionary for populate {self.name} queried")
-        return(ans)
+        logger.debug(f"list of sections {self.name} queried")
+        return(ans[0]['value'])
 
     def getlist(self):
         """returns data to populate GUI"""
@@ -172,7 +172,7 @@ class QuantBundle():
             self.comm = Comm(self.bundle_name)
         else:
             self.comm = comm
-        self.dictionary = self.comm.populate()
+        #self.dictionary = self.comm.populate()
         self.dictionary = self.comm.getlist()
         # dictionary of dictionaries to hold
         # data from widget created in loop
@@ -312,7 +312,6 @@ class QuantBundle():
                 size_hint = (1, None),
                 )
         # outside loop for get quantity
-        print(self.dictionary)
         for key, val in self.dictionary.items():
             # dict for widgets in quantity
             qty_widgets={}
@@ -415,11 +414,9 @@ class QuantBundle():
         return(self.main_layout)
 
     def update_all_gui(self):
-        print("update GUI values")
         self.data_name.text = (self.comm.getval('name'))
         for key, val in self.data_qts.items():
             ans = self.comm.getval(key)
-            print(f"key: {key} updated")
             val['value'].text = str(ans)
 
     def calc_update(self):
@@ -466,6 +463,7 @@ class CalcAcousticsApp(App):
         self.root=Accordion()
         if platform == 'android':
             self.root.orientation='vertical'
+        """
         #
         # Speaker
         #
@@ -481,6 +479,8 @@ class CalcAcousticsApp(App):
         speaker_layout.add_widget(self.tmpans)
         speaker_item.add_widget(speaker_layout)
         self.root.add_widget(speaker_item)
+        """
+        '''
         #
         #Enclosure
         #
@@ -492,6 +492,27 @@ class CalcAcousticsApp(App):
         enclosure_layout.add_widget(Label(text="END"))
         enclosure_item.add_widget(enclosure_layout)
         self.root.add_widget(enclosure_item)
+        '''
+        #
+        # generate sections
+        #
+        c = Comm("interface")
+        #section_list = ['template', 'glosnik'] # TODO get if from iterface
+        section_list = c.getsections()
+        # dictionary for objects
+        self.bundles = {}
+        for section in section_list:
+            x_item=AccordionItem(title=section)
+            x_layout=BoxLayout(orientation="vertical")
+            self.bundles[section] = QuantBundle(section)
+            header = self.bundles[section].populate_header()
+            x_layout.add_widget(header)
+            widget = self.bundles[section].populate_with_dicts()
+            x_layout.add_widget(widget)
+            x_layout.add_widget(Label(text="END"))
+            x_item.add_widget(x_layout)
+            self.root.add_widget(x_item)
+        '''
         #
         # template (for test)
         #
@@ -518,6 +539,7 @@ class CalcAcousticsApp(App):
         glosnik_layout.add_widget(Label(text="END"))
         glosnik_item.add_widget(glosnik_layout)
         self.root.add_widget(glosnik_item)
+        '''
         # open speaker item as default when running program
 #        speaker_item.collapse=False
         self.windows_size()

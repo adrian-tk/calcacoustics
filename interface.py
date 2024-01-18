@@ -31,6 +31,7 @@ except Exception as err:
     print(err)
     print("Maybe You shall be in env?")
 
+from solver.list_sections import list_sections
 # add module here
 from solver import speaker
 from solver import cable
@@ -50,24 +51,20 @@ class Interface():
 
     def __init__(
             self,
-            sections = {
-                # add solvers here
-                'speaker': speaker.Speaker(),
-                'cable': cable.Cable(),
-                # template for testing
-                'template':import_module(
-                    'solver.sections.template').CalcBundle(),
-                'glosnik': import_module(
-                    'solver.sections.glosnik').CalcBundle(),
-                #'glosnik': glosnik.CalcBundle()
-                }
+            sections = {}
             ):
+        for sec in list_sections(hide = None):
+            logger.info(f"load section: {sec}")
+            secpath = 'solver.sections.' + sec
+            sections[sec] = import_module(secpath).CalcBundle()
         # dict for holding interfaces
         self.sections = sections
+        '''
         self.version="0.2" # to REMOVE
         self.sp=speaker.Speaker() # to REMOVE
         self.sp.key_as_short_name()
         self.cable=cable.Cable()
+        '''
         # for version etc.
         self.sections['interface'] = self
         logger.debug(
@@ -177,6 +174,19 @@ class Interface():
                         for list_quantities")
                 ans = None
 
+    def solver_list_sections(self):
+        match self.query['action']:
+            case "get":
+                self.answer['action'] = 'answer'
+                #ans = list_sections()
+                ans = list_sections(hide = None)
+                logcom.debug(f"solver send to GUI: {ans}")
+                self.answer['value'] = ans
+            case _:
+                logger.error(f"there is no {self.query['action']} \
+                        for list_sections")
+                ans = None
+
     def get_list_quantities(data):
         """old"""
         match data['action']:
@@ -223,6 +233,10 @@ class Interface():
                 self.answer["item"]=self.query["item"]
                 self.solver_list_quantities()
                 logger.debug("solver was asked about list quantities")
+            case "list_sections":
+                self.answer["item"]=self.query["item"]
+                self.solver_list_sections()
+                logger.debug("solver was asked about list sections")
             case "file.ini":
                 self.section().read_from_file(self.query['value'])
                 logger.debug("read ini file")
@@ -343,11 +357,14 @@ if __name__=="__main__":
     #if False:
         inf=Interface()
         query = {
-            "section": "template",
-            "item": "first",
-            "action": "set",
+            "section": "interface",
+            "item": "list_sections",
+            "action": "get",
             "value": "5",
         }
+        ans = (inf.ask(query))
+        print("answer:")
+        print(ans)
 
     else:
         # full test from unittest in tests directory
