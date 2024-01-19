@@ -1,60 +1,105 @@
 #!../env/bin/python
+
+import logging
+logging.disable(logging.CRITICAL)
 import unittest
+if __name__ == "__main__":
+     import sys
+     sys.path.append("../")
 import sys
 sys.path.append("..")
 import interface
-import logging
-class Dummy():
-    """dummy class to imitate solver's object
-    Just return some data
-    """
-    def __init__(self):
-        self.name = "dummy object"
-        self.par={
-                'first':{
-                    'name': 'first parameter',
-                    'value': 3.0,
-                    'unit': 'd',
-                    'desc':"some parameter for testing purposes",
-                    'calculate': False
-                    },
-                'second':{
-                    'name': 'second parameter',
-                    'value': 4.0,
-                    'unit': 'k',
-                    'desc':"other parameter for testing purposes",
-                    'calculate': False
-                    },
-                }
-        def recalculate(self):
-            return True
-        #def set_val(self):
-        #    return 9.81
-        def save_to_file(self):
-            pass
-        def read_from_file(self):
-            pass
+import solver.sections.template as template
 
 class TestInterface(unittest.TestCase):
     def setUp(self):
-        self.inf=interface.Interface({'dummy': Dummy()})
-        #print(self.inf.sections['dummy'].par)
+        self.inf=interface.Interface({'test': template.CalcBundle()})
 
-    def test_section(self):
-        """proper query for dummy interface returns object"""
-        real_ans = self.inf.section({
-            "section": "dummy",
-            "item": "whatever",
-            "action": "whatever",
+    def test_get_name(self):
+        """proper query for test interface returns object"""
+        real_ans = self.inf.ask({
+            "section": "test",
+            "item": "name",
+            "action": "get",
             "value": "whatever",
         })
-        expected_ans = self.inf.sections['dummy']
+        expected_ans = ([{
+            "section": "test",
+            "item": "name",
+            "action": "answer",
+            "value": "just template",
+        }])
 
         self.assertEqual(real_ans, expected_ans)
 
-    def test_section_nok(self):
-        """proper query for dummy interface returns None"""
-        ans = self.inf.section({
+    def test_get_list(self):
+        real_ans = self.inf.ask({
+            "section": "test",
+            "item": "list_quantities",
+            "action": "get",
+            "value": "whatever",
+        })
+
+        # check some expected values
+        self.assertEqual(real_ans[0]['section'], "test")
+        self.assertEqual(real_ans[0]['item'], "list_quantities")
+        self.assertEqual(real_ans[0]['action'], "answer")
+        self.assertEqual(real_ans[0]['value']['first']['name'],
+                         "first number")
+        self.assertEqual(real_ans[0]['value']['second']['unit'], "-")
+        self.assertEqual(real_ans[0]['value']['sum']['value'], 0.0)
+        self.assertEqual(real_ans[0]['value']['sum']['dependencies'],
+                         "first, second")
+
+    def test_get_sections(self):
+        real_ans = self.inf.ask({
+            "section": "interface",
+            "item": "list_sections",
+            "action": "get",
+            "value": "whatever",
+        })
+
+        expected_ans = [{
+            'section': "interface",
+            'item': 'list_sections',
+            'action': 'answer',
+            'value': ['speaker', 'template']
+            }]
+
+        # check some expected values
+        self.assertEqual(real_ans, expected_ans)
+
+    def test_set_value(self):
+        """proper query for test interface returns object"""
+        real_ans = self.inf.ask({
+            "section": "test",
+            "item": "first",
+            "action": "set",
+            "value": "1.0",
+        })
+        expected_ans = ([
+            {
+            'section': 'test',
+            'item': 'first',
+            'action': 'confirm',
+            'value': '1.0'
+            },
+            {
+            'section': 'test',
+            'item': 'sum',
+            'action': 'answer',
+            'value':
+            '1.0'
+            }
+        ])
+
+        self.assertEqual(real_ans, expected_ans)
+
+    # change to test when error answer will be ready
+    def est_section_nok(self):
+        """proper query for test interface returns None"""
+
+        ans = self.inf.ask({
             "section": "whatever",
             "item": "whatever",
             "action": "whatever",
@@ -63,40 +108,6 @@ class TestInterface(unittest.TestCase):
 
         self.assertEqual(ans, None)
 
-
-    def test_send_to_speaker_ok(self):
-
-        real_ans = self.inf.send({
-            "section": "speaker",
-            "item": "version",
-            "action": "get",
-            "value": None,
-        })
-        # remove version number from answer
-        #real_ans['value'] = real_ans['value'][:7]
-
-        expected_ans = {
-            "section": "speaker",
-            "item": "version",
-            "action": "answer",
-            "value": "0.1",
-        }
-
-        self.assertEqual(real_ans, expected_ans)
-
-    def test_send_to_speaker_NOK(self):
-
-        real_ans = self.inf.send({
-            "section": "wrong",
-            "item": "whatever",
-            "action": "get",
-            "value": None,
-        })
-
-        expected_ans = ("there is no wrong for section GUI sent")
-
-        self.assertEqual(real_ans, expected_ans)
-
-
 if __name__=='__main__':
+    sys.path.append("..")
     unittest.main()

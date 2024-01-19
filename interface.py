@@ -32,39 +32,18 @@ except Exception as err:
     print("Maybe You shall be in env?")
 
 from solver.list_sections import list_sections
-# add module here
-from solver import speaker
-from solver import cable
-#from solver.sections import template
-#from solver.sections import glosnik
-
-#TODO: test script
-
-class Version():
-    """class for versioning of interface"""
-    def __init__(self):
-        self.version = 0.1
-    def get_version(self):
-        return(self.version)
 
 class Interface():
+    """interface between GUI and solver"""
 
-    def __init__(
-            self,
-            sections = {}
-            ):
-        for sec in list_sections(hide = None):
-            logger.info(f"load section: {sec}")
-            secpath = 'solver.sections.' + sec
-            sections[sec] = import_module(secpath).CalcBundle()
+    def __init__(self, sections:dict = {}):
+        if sections == {}:
+            for sec in list_sections(hide = None):
+                logger.info(f"load section: {sec}")
+                secpath = 'solver.sections.' + sec
+                sections[sec] = import_module(secpath).CalcBundle()
         # dict for holding interfaces
         self.sections = sections
-        '''
-        self.version="0.2" # to REMOVE
-        self.sp=speaker.Speaker() # to REMOVE
-        self.sp.key_as_short_name()
-        self.cable=cable.Cable()
-        '''
         # for version etc.
         self.sections['interface'] = self
         logger.debug(
@@ -102,34 +81,6 @@ class Interface():
                     "value": str(self.section().par[ans].value)
                 }
             )
-
-    def simple_attr(self, data, case):
-        """get data as dictrionary and create answer as dictionary
-        for attributes in speaker data
-        """
-        if data["action"] == "get":
-            data["action"] = "answer"
-            try:
-                data["value"] = getattr(self.sp, case)
-            except Exception as err:
-                logger.error("cant find atribute {case}")
-                logger.error(err)
-            #data["value"] = self.sp.name
-            logcom.debug(f"calc send to GUI: {data}")
-            return(data)
-        elif data["action"] == "set":
-            data["action"] = "answer"
-            try:
-                setattr(self.sp, case, data['value'])
-            except Exception as err:
-                logger.error("cant find atribute {case}")
-                logger.error(err)
-            #self.sp.name = data["value"]
-            logcom.debug(f"calc send to GUI: {data}")
-            return(data)
-        else:
-            logger.error(f"wrong action")
-            return("error")
 
     def solver_attribute(self, attr):
         match self.query['action']:
@@ -171,36 +122,23 @@ class Interface():
                 self.answer['value'] = ans
             case _:
                 logger.error(f"there is no {self.query['action']} \
-                        for list_quantities")
+                        or {self.query['section']} for list_quantities")
                 ans = None
 
     def solver_list_sections(self):
-        match self.query['action']:
-            case "get":
-                self.answer['action'] = 'answer'
-                #ans = list_sections()
-                ans = list_sections(hide = None)
-                logcom.debug(f"solver send to GUI: {ans}")
-                self.answer['value'] = ans
-            case _:
-                logger.error(f"there is no {self.query['action']} \
-                        for list_sections")
-                ans = None
+        if self.query['action'] == 'get' and \
+                    self.query['section'] == 'interface':
+            self.answer['action'] = 'answer'
+            self.answer['section'] = 'interface'
+            #ans = list_sections()
+            ans = list_sections(hide = None)
+            logcom.debug(f"solver send to GUI: {ans}")
+            self.answer['value'] = ans
+        else:
+            logger.error(f"there is no {self.query['action']} \
+                    for list_sections")
+            ans = None
 
-    def get_list_quantities(data):
-        """old"""
-        match data['action']:
-            case "get":
-                for key, val in self.sp.par.items():
-                    ans[key]=section(data).par[key].dictionary()
-                logcom.debug(f"solver sent to GUI: {ans}")
-            case _:
-                logger.error(
-                        f"there is no {data['action']} for list_quantities"
-                        )
-                ans = None
-        return(ans)
-        
     def section(self):
         """try to connect section from qurey to section object
 
@@ -263,102 +201,23 @@ class Interface():
                 except Exception as err:
                     logger.exception(f"can't get {self.query['item']} item")
                     
-                
-    def speaker(self, data):
-        ans={}
-        match data["item"]:
-            case "version":
-                data['action'] = 'answer'
-                data['value'] =  str(self.version)
-                logcom.debug(f"calc send to GUI: {data}")
-                return (data)
-                
-            case "list_quantities":
-                for key, val in self.sp.par.items():
-                    ans[key]=self.sp.par[key].dictionary()
-                logcom.debug(f"calc send to GUI: {ans}")
-                return(ans)
-
-            case "name":
-                return (self.simple_attr(data, data["item"]))
-            
-            case "producer":
-                return (self.simple_attr(data, data["item"]))
-
-            case "model":
-                return (self.simple_attr(data, data["item"]))
-
-            case "speaker.ini":
-                self.sp.read_from_file(data['value'])
-                logger.debug("read ini file")
-                data['action'] = 'answer'
-                return data
-                """
-                if data["action"] == "get":
-                    data["action"] = "answer"
-                    data["value"] = self.sp.name
-                    logcom.debug(f"calc send to GUI: {data}")
-                    return(data)
-                elif data["action"] == "set":
-                    data["action"] = "answer"
-                    self.sp.name = data["value"]
-                    logcom.debug(f"calc send to GUI: {data}")
-                    logcom.debug(f"calc set name to: {data['value']}")
-                    return(data)
-                else:
-                    logger.error(f"wrong action")
-                    return("error")
-                    """
-            case _:
-                if data["item"] in self.sp.par:
-                    if data["action"] == "set":
-                        data["action"] = "answer"
-                        #setattr(self.sp, data["item"], data["value"])
-                        if data['value']=="": data['value']=0
-                        self.sp.par[data["item"]].value = float(data["value"])
-                       # print(self.sp.par[data["item"]].value)
-                        logcom.debug(f"calc send to GUI: {data}")
-                    elif data["action"] == "get":
-                        data["action"] = "answer"
-                        data['value'] = str(self.sp.par[data["item"]].value)
-                        logcom.debug(f"calc send to GUI: {data}")
-                        return(data)
-                    elif data["action"] == "calculate":
-                        data["action"] = "answer"
-                        if data["item"] == "EBP":
-                            ans=self.sp.setEBP()
-                            logger.debug(f"calculate EBP")
-                            data["value"] =str(self.sp.par[data["item"]].value)
-                            logcom.debug(f"calc send to GUI: {data}")
-                            return(data)
-
-                else:
-                    logger.error(f"there is no {val} value "
-                                  "for {val} values that GUI sent")
-
-
-    def send(self, data):
-        """check to which module shall be directed query, and
-        direct it there
-        """
-
-        logcom.debug(f"calc get from GUI: {data}")
-        match data["section"]:
-            case "speaker":
-                return (self.speaker(data))
-            case _:
-                err = (f"there is no {data['section']} " 
-                        "for section GUI sent")
-                logger.error(err)
-                return (err)
-
 if __name__=="__main__":
-    if True:
+    if False:
     #if False:
         inf=Interface()
         query = {
             "section": "interface",
             "item": "list_sections",
+            "action": "get",
+            "value": "5",
+        }
+        ans = (inf.ask(query))
+        print("answer:")
+        print(ans)
+
+        query = {
+            "section": "template",
+            "item": "list_quantities",
             "action": "get",
             "value": "5",
         }

@@ -1,15 +1,16 @@
 #!../env/bin/python
 
 import unittest
-import sys
-sys.path.append("../")
+if __name__ == "__main__":
+    import sys
+    sys.path.append("../")
 import os
 import tempfile
 
 from solver.list_sections import list_sections
 #from common import rootdir
 
-class TestRootDir(unittest.TestCase):
+class TestListSections(unittest.TestCase):
     """test list_section module
 
     creates directories, especially section directory with 

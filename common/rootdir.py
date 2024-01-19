@@ -5,8 +5,9 @@ return proper path for looking files eg. .ini
 """
 
 import glob
-import sys
-sys.path.append("..")
+if __name__ == "__main__":
+     import sys
+     sys.path.append("../")
 
 # root directory contain following files and directories
 FILES = ['tests', 'solver', 'requirements.txt']
