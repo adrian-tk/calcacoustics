@@ -2,9 +2,10 @@ now:
 cleaning code
 documentation
 test cases
+adding ruler for bundles in GUI
 adding some calculators
 add calcuation button
-create automaticly directories for .ini
+create automatically directories for .ini
 
 someday:
 

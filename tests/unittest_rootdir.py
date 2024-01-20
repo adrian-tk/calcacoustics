@@ -37,6 +37,10 @@ class TestRootDir(unittest.TestCase):
         only foo.txt without bar.txt shall be ignored
         """
 
+        # default directory to reassign it later
+        # actual directory stays for other tests
+        self.defdir = os.getcwd()
+
         self.tmpdir = tempfile.TemporaryDirectory()
         os.mkdir(os.path.join(self.tmpdir.name, "one"))
         os.mkdir(os.path.join(self.tmpdir.name, "another_one"))
@@ -59,6 +63,8 @@ class TestRootDir(unittest.TestCase):
             tfile.close()
         self.another.close()
         self.tmpdir.cleanup()
+        # recover direcory
+        os.chdir(self.defdir)
 
     def test_prefix_root_root(self):
         """script in root called from root
