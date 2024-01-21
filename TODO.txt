@@ -1,8 +1,10 @@
 now:
-cleaning code
-documentation
-test cases
-adding ruler for bundles in GUI
+Going: cleaning code
+Going: documentation
+Going: test cases
+adding slider for bundles in GUI
+	problems with opening file
+	make slider thicker
 adding some calculators
 add calcuation button
 create automatically directories for .ini
