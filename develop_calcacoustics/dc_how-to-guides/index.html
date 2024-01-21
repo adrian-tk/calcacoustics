@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://abc.def/develop_calcacoustics/dc_how-to-guides/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Dc how to guides - CalcAcoustics</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Dc how to guides";
+        var mkdocs_page_input_path = "develop_calcacoustics/dc_how-to-guides.md";
+        var mkdocs_page_url = "/develop_calcacoustics/dc_how-to-guides/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> CalcAcoustics
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../using_calcacoustics/uc_index/">Using CalcAcoustics</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../creating_calculators/cc_index/">Creating Calculators</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../dc_index/">Developing CalcAcoustics</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">CalcAcoustics</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Dc how to guides</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <p>How-to guides are directions that take the reader through the steps 
+required to solve a real-world problem. How-to guides are goal-oriented.</p>
+<h1 id="how-to-install-calcacoustics">How To install CalcAcoustics</h1>
+<p>CalcAcoustics is written in Python using Kivy as GUI, so  it shall work in many place You can install Python.
+Especially PC on Linux or Windows, IOS, Android. Rpi or other ARM shall also work.
+At this time no binaries are available, so only the Python scripts are avaiable.</p>
+<h2 id="python-scripts">Python scripts</h2>
+<ol>
+<li>Download files using git:
+<code>git clone git@github.com:adrian-tk/calcacoustics.git</code></li>
+<li>In calcacoustic directory create a virtual environment and activate it:
+<code>python3 -m venv env</code>
+<code>source env/bin/activate</code></li>
+<li>Install all requirements with pip:
+<code>pip install -r requirements.txt</code></li>
+<li>Run script:
+<code>./calcacoustics.py</code> or click it in windows manager</li>
+</ol>
+<h2 id="android">Android</h2>
+<h3 id="build-from-script">Build from script</h3>
+<p>At this time there is no ready binaries, You can build them using buildozer
+1. Get all Python script as in Python scirpts section
+2. export path
+<code>export PATH=$PATH:~/.local/bin/</code>
+3. build:
+<code>buildozer -v android</code>
+Binaries shall be in ./bin directory</p>
+<h1 id="how-to-calculate-ebp">How To Calculate EBP?</h1>
+<p>TODO
+In Speaker part put a xx and axx
+EBP will be in EBP label</p>
+<h1 id="how-to-decide-which-enclosure-is-the-best-for-the-speaker">How To decide which enclosure is the best for the speaker</h1>
+<p>TODO
+EBP and stuff</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../javascripts/mathjax.js"></script>
+      <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

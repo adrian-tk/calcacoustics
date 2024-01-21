@@ -2,27 +2,82 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://abc.def/</loc>
-         <lastmod>2023-11-25</lastmod>
+         <lastmod>2024-01-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://abc.def/explanation/</loc>
-         <lastmod>2023-11-25</lastmod>
+         <loc>https://abc.def/creating_calculators/cc_explanation/</loc>
+         <lastmod>2024-01-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://abc.def/how-to-guides/</loc>
-         <lastmod>2023-11-25</lastmod>
+         <loc>https://abc.def/creating_calculators/cc_how-to-guides/</loc>
+         <lastmod>2024-01-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://abc.def/reference/</loc>
-         <lastmod>2023-11-25</lastmod>
+         <loc>https://abc.def/creating_calculators/cc_index/</loc>
+         <lastmod>2024-01-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://abc.def/tutorials/</loc>
-         <lastmod>2023-11-25</lastmod>
+         <loc>https://abc.def/creating_calculators/cc_reference/</loc>
+         <lastmod>2024-01-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://abc.def/creating_calculators/cc_tutorials/</loc>
+         <lastmod>2024-01-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://abc.def/develop_calcacoustics/dc_explanation/</loc>
+         <lastmod>2024-01-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://abc.def/develop_calcacoustics/dc_how-to-guides/</loc>
+         <lastmod>2024-01-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://abc.def/develop_calcacoustics/dc_index/</loc>
+         <lastmod>2024-01-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://abc.def/develop_calcacoustics/dc_reference/</loc>
+         <lastmod>2024-01-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://abc.def/develop_calcacoustics/dc_tutorials/</loc>
+         <lastmod>2024-01-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://abc.def/using_calcacoustics/uc_explanation/</loc>
+         <lastmod>2024-01-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://abc.def/using_calcacoustics/uc_how-to-guides/</loc>
+         <lastmod>2024-01-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://abc.def/using_calcacoustics/uc_index/</loc>
+         <lastmod>2024-01-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://abc.def/using_calcacoustics/uc_reference/</loc>
+         <lastmod>2024-01-21</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://abc.def/using_calcacoustics/uc_tutorials/</loc>
+         <lastmod>2024-01-21</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
