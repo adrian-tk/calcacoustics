@@ -4,10 +4,9 @@ docs_dir: ../docs
 theme: readthedocs
 nav:
   - Home: index.md
-  - Turorial: tutorials.md
-  - How-to Guides: how-to-guides.md
-  - Reference: reference.md
-  - Explanation: explanation.md
+  - Using CalcAcoustics: using_calcacoustics/uc_index.md
+  - Creating Calculators: creating_calculators/cc_index.md
+  - Developing CalcAcoustics: develop_calcacoustics/dc_index.md
 
 markdown_extensions:
   - pymdownx.arithmatex:
