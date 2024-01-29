@@ -469,11 +469,10 @@ class CalcAcousticsApp(App):
         self.root=Accordion()
         if platform == 'android':
             self.root.orientation='vertical'
-        #
-        # generate sections
+        # # generate sections
         #
         c = Comm("interface")
-        #section_list = ['speaker']
+        #self.section_list = ['speaker']
         self.section_list = c.getsections()
         # dictionary for objects
         self.bundles = {}
@@ -483,7 +482,11 @@ class CalcAcousticsApp(App):
             self.items[section]=AccordionItem(title=section)
             self.scroll_views[section] = ScrollView(
                     size_hint=(1, None),
-                    size=(Window.width, Window.height)
+                    size=(Window.width, Window.height),
+                    scroll_timeout=1,
+                    scroll_type=['bars'],
+                    bar_width=sp(20)
+
                     )
             x_layout=BoxLayout(orientation="vertical")
             x_layout.size_hint_y = None
