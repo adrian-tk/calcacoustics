@@ -31,6 +31,7 @@ from kivy.uix.accordion import Accordion, AccordionItem
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.filechooser import FileChooserListView
+from kivy.uix.scrollview import ScrollView
 from kivy.metrics import sp
 
 import interface
@@ -443,6 +444,11 @@ class QuantBundle():
 class CalcAcousticsApp(App):
 
     def windows_size(self, *args):
+        xwin = self.root.size[0]
+        ywin = self.root.size[1]
+        xywin = (xwin, ywin)
+        for section in self.section_list:
+            self.scroll_views[section].size = xywin
         if platform == 'android':
             if self.root.size[0] > self.root.size[1]:
                 self.root.orientation='vertical'
@@ -463,85 +469,39 @@ class CalcAcousticsApp(App):
         self.root=Accordion()
         if platform == 'android':
             self.root.orientation='vertical'
-        """
-        #
-        # Speaker
-        #
-        self.comm = Comm("speaker")
-        speaker_item=AccordionItem(title="Speaker")
-        speaker_layout=BoxLayout(orientation="vertical")
-        self.speaker_bundle = QuantBundle("speaker")
-        header = self.speaker_bundle.populate_header()
-        speaker_layout.add_widget(header)
-        widget = self.speaker_bundle.populate_with_dicts()
-        speaker_layout.add_widget(widget)
-        self.tmpans = Label(text="END")
-        speaker_layout.add_widget(self.tmpans)
-        speaker_item.add_widget(speaker_layout)
-        self.root.add_widget(speaker_item)
-        """
-        '''
-        #
-        #Enclosure
-        #
-        enclosure_item=AccordionItem(title="Enclosure")
-        enclosure_layout=BoxLayout(orientation="vertical")
-        #self.bundle = QuantBundle("speaker")
-        #widget = self.bundle.populate_with_dicts()
-        #enclosure_layout.add_widget(widget)
-        enclosure_layout.add_widget(Label(text="END"))
-        enclosure_item.add_widget(enclosure_layout)
-        self.root.add_widget(enclosure_item)
-        '''
-        #
-        # generate sections
+        # # generate sections
         #
         c = Comm("interface")
-        #section_list = ['template', 'glosnik'] # TODO get if from iterface
-        section_list = c.getsections()
+        #self.section_list = ['speaker']
+        self.section_list = c.getsections()
         # dictionary for objects
         self.bundles = {}
-        for section in section_list:
-            x_item=AccordionItem(title=section)
+        self.items = {}
+        self.scroll_views = {}
+        for section in self.section_list:
+            self.items[section]=AccordionItem(title=section)
+            self.scroll_views[section] = ScrollView(
+                    size_hint=(1, None),
+                    size=(Window.width, Window.height),
+                    scroll_timeout=1,
+                    scroll_type=['bars'],
+                    bar_width=sp(20)
+
+                    )
             x_layout=BoxLayout(orientation="vertical")
+            x_layout.size_hint_y = None
+            x_layout.bind(minimum_height=x_layout.setter('height'))
             self.bundles[section] = QuantBundle(section)
             header = self.bundles[section].populate_header()
             x_layout.add_widget(header)
             widget = self.bundles[section].populate_with_dicts()
             x_layout.add_widget(widget)
-            x_layout.add_widget(Label(text="END"))
-            x_item.add_widget(x_layout)
-            self.root.add_widget(x_item)
-        '''
-        #
-        # template (for test)
-        #
-        template_item=AccordionItem(title="Template")
-        template_layout=BoxLayout(orientation="vertical")
-        self.template_bundle = QuantBundle("template")
-        header = self.template_bundle.populate_header()
-        template_layout.add_widget(header)
-        widget = self.template_bundle.populate_with_dicts()
-        template_layout.add_widget(widget)
-        template_layout.add_widget(Label(text="END"))
-        template_item.add_widget(template_layout)
-        self.root.add_widget(template_item)
-        #
-        # glosnik for remove
-        #
-        glosnik_item=AccordionItem(title="Glosnik")
-        glosnik_layout=BoxLayout(orientation="vertical")
-        self.gbundle = QuantBundle("glosnik")
-        header = self.gbundle.populate_header()
-        glosnik_layout.add_widget(header)
-        widget = self.gbundle.populate_with_dicts()
-        glosnik_layout.add_widget(widget)
-        glosnik_layout.add_widget(Label(text="END"))
-        glosnik_item.add_widget(glosnik_layout)
-        self.root.add_widget(glosnik_item)
-        '''
+            #x_layout.add_widget(Label(text="END"))
+            self.scroll_views[section].add_widget(x_layout)
+            self.items[section].add_widget(self.scroll_views[section])
+            self.root.add_widget(self.items[section])
         # open speaker item as default when running program
-#        speaker_item.collapse=False
+        self.items['speaker'].collapse=False
         self.windows_size()
         return self.root
 if __name__=="__main__":
